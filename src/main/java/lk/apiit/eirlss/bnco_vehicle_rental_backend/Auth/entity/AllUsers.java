@@ -4,21 +4,22 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Entity
 @Getter
 @Setter
-@Table(name = "admin" ,schema = "public")
-public class Admin {
+@Table(name = "all_users" ,schema = "public")
+public class AllUsers implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long adminId;
+    private long Id;
 
-    private String adminName;
+    private String username;
 
-    private String adminPassword;//encrypted string
+    private String password;//encrypted string
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "role_id",nullable = false)
     private Role role;
 

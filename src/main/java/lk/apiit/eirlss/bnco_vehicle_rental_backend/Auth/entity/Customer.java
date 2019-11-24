@@ -14,6 +14,8 @@ public class Customer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long customerId;
 
+    private long userId;
+
     private String customerName;
 
     private String customerContactNo;
@@ -23,8 +25,6 @@ public class Customer {
     private String customerStatus;
 
     private String customerUserName;
-
-    private String customerPassword; //encrypted string
 
     private String customerEmail;
 
