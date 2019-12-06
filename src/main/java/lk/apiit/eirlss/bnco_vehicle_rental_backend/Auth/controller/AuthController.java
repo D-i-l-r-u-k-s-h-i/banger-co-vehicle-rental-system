@@ -52,4 +52,9 @@ public class AuthController {
     public ResponseEntity<?> registerNewUser(@Valid @RequestBody CustomerDTO customerDTO){
         return ResponseEntity.ok(customUserDetailsService.saveCustomer(customerDTO));
     }
+
+    @RequestMapping(value = "/updatepwd",method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> updatePwd(@RequestBody CustomerDTO customerDTO){
+        return ResponseEntity.ok(customUserDetailsService.updatePwd(customerDTO));
+    }
 }

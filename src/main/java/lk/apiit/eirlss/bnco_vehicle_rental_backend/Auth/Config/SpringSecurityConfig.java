@@ -1,5 +1,6 @@
 package lk.apiit.eirlss.bnco_vehicle_rental_backend.Auth.Config;
 
+import lk.apiit.eirlss.bnco_vehicle_rental_backend.Auth.CustomLogoutSuccessHandler;
 import lk.apiit.eirlss.bnco_vehicle_rental_backend.Auth.JWTAuthenticationFilter;
 import lk.apiit.eirlss.bnco_vehicle_rental_backend.Auth.JwtAuthenticationEntryPoint;
 import lk.apiit.eirlss.bnco_vehicle_rental_backend.Auth.Service.CustomUserDetailService;
@@ -15,6 +16,8 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
+
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 @EnableWebSecurity(debug = true)
 @Configuration
@@ -32,6 +35,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+        //authorize requests
         http
                 .csrf()
                 .disable()
@@ -43,9 +47,15 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
                 .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+
+        //Login config
         http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
         http.headers().cacheControl();
-//        super.configure(http);
+        //logout request:  http://localhost:8080/logout
+        http.logout()
+                .logoutSuccessHandler(logoutSuccessHandler())
+                .invalidateHttpSession(true)
+                .deleteCookies("JSESSIONID");;
     }
 
     @Override
@@ -65,5 +75,10 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     public AuthenticationManager authenticationManagerBean() throws Exception {
         return super.authenticationManagerBean();
+    }
+
+    @Bean
+    public LogoutSuccessHandler logoutSuccessHandler() {
+        return new CustomLogoutSuccessHandler();
     }
 }

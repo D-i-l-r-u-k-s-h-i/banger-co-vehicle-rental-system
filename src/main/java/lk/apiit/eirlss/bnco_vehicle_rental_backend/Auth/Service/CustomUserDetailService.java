@@ -76,4 +76,27 @@ public class CustomUserDetailService implements UserDetailsService {
 
         return ret;
     }
+
+    public String updatePwd(CustomerDTO customerDTO){
+        String response="";
+        AllUsers u = userRepository.findByUsername(customerDTO.getCustomerUserName());
+        if (u != null) {
+//            if (bCryptPasswordEncoder.matches(pwdUpdate.getOld_password(), u.getPassword())) {
+                if (customerDTO.getCustomerPassword().equals(customerDTO.getConfirmPassword())) {
+                    String pwd = new BCryptPasswordEncoder().encode(customerDTO.getCustomerPassword());
+                    u.setPassword(pwd);
+                    userRepository.save(u);
+                    response.concat("successful password update");
+                } else {
+                    response.concat("Password missmatch");
+                }
+//            } else {
+//                ret = (AuthResponseCodes.INVALID_PASSWORD);
+//            }
+
+        } else {
+            response.concat("invalid User");
+        }
+        return response;
+    }
 }

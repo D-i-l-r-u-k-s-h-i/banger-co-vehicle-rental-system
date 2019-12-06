@@ -20,6 +20,8 @@ public class CustomerDTO {
 
     private String customerPassword;
 
+    private String confirmPassword;
+
     private String customerEmail;
 
     private boolean isBlacklisted;
