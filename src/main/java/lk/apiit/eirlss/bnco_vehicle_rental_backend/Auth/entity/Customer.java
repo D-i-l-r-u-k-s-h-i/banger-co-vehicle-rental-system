@@ -16,11 +16,15 @@ public class Customer {
 
     private long userId;
 
-    private String customerName;
+    private String customerFName;
+
+    private String customerLName;
 
     private String customerContactNo;
 
-    private String customerAddress;
+    private String emergencyContactNo;
+
+//    private String customerAddress;
 
     private String customerStatus;
 
