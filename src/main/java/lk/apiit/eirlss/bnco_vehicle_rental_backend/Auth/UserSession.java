@@ -8,10 +8,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class UserSession implements UserDetails {
     private Long id;
@@ -34,7 +31,9 @@ public class UserSession implements UserDetails {
     }
 
     public static UserSession create(AllUsers user) {
-        List<GrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority(RoleName.ROLE_CUSTOMER.toString()));
+//        List<GrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority(RoleName.ROLE_CUSTOMER.toString()));
+        List<GrantedAuthority> authorities =new ArrayList<>();
+        authorities.add(new SimpleGrantedAuthority(user.getRole().getRoleName().toString()));
         
         return new UserSession(
                 user.getId(),

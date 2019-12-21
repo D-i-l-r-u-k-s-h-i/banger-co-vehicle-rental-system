@@ -16,6 +16,8 @@ public class Vehicle {
 
     private String vehicleName;
 
+    private String imgLink;
+
     private String plateNumber;
 
     private double vehicleRentalPrice;

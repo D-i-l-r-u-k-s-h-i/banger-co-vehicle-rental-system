@@ -1,14 +1,15 @@
 package lk.apiit.eirlss.bnco_vehicle_rental_backend.Auth.Service;
 
+import lk.apiit.eirlss.bnco_vehicle_rental_backend.Auth.DTO.AdminDTO;
 import lk.apiit.eirlss.bnco_vehicle_rental_backend.Auth.DTO.CustomerDTO;
+import lk.apiit.eirlss.bnco_vehicle_rental_backend.Auth.Repository.AdminRepository;
 import lk.apiit.eirlss.bnco_vehicle_rental_backend.Auth.Repository.CustomerRepository;
 import lk.apiit.eirlss.bnco_vehicle_rental_backend.Auth.Repository.UserRepository;
 import lk.apiit.eirlss.bnco_vehicle_rental_backend.Auth.UserSession;
-import lk.apiit.eirlss.bnco_vehicle_rental_backend.Auth.entity.AllUsers;
-import lk.apiit.eirlss.bnco_vehicle_rental_backend.Auth.entity.Customer;
-import lk.apiit.eirlss.bnco_vehicle_rental_backend.Auth.entity.Role;
-import lk.apiit.eirlss.bnco_vehicle_rental_backend.Auth.entity.RoleName;
+import lk.apiit.eirlss.bnco_vehicle_rental_backend.Auth.entity.*;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -28,6 +29,9 @@ public class CustomUserDetailService implements UserDetailsService {
 
     @Autowired
     CustomerRepository customerRepository;
+
+    @Autowired
+    AdminRepository  adminRepository;
 
     @Override
     @Transactional
@@ -105,13 +109,45 @@ public class CustomUserDetailService implements UserDetailsService {
                 } else {
                     response.concat("Password missmatch");
                 }
-//            } else {
-//                ret = (AuthResponseCodes.INVALID_PASSWORD);
-//            }
 
         } else {
             response.concat("invalid User");
         }
         return response;
+    }
+
+    @Transactional
+    public String saveAdmin(AdminDTO adminDTO){
+        String ret="";
+
+        AllUsers user=userRepository.findByUsername(adminDTO.getUsername());
+
+        if(user!=null){
+            ret = "Sorry this name is taken";
+        }
+        else{
+            UserSession userSession = (UserSession) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+            if(bCryptPasswordEncoder.matches(adminDTO.getCurrentAdminPass(),userSession.getPassword())){
+                String pwd = bCryptPasswordEncoder.encode(adminDTO.getPassword());
+
+                ModelMapper modelMapper= new ModelMapper();
+                Admin admin=modelMapper.map(adminDTO,Admin.class);
+                AllUsers newuser=modelMapper.map(adminDTO,AllUsers.class);
+                newuser.setPassword(pwd);
+                newuser.setRole(new Role(1,RoleName.ROLE_ADMIN));
+                admin.setRole(new Role(1,RoleName.ROLE_ADMIN));
+
+                adminRepository.save(admin);
+                userRepository.save(newuser);
+
+                ret="Successful Registration";
+            }
+            else {
+                ret="Sorry, incorrect password";
+            }
+
+        }
+        return ret;
     }
 }
