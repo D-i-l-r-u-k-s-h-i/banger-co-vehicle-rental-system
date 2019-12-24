@@ -16,11 +16,16 @@ public class AllUsers implements Serializable {
     private long id;
 
     private String username;
-
-    private String password;//encrypted string
+    //encrypted string
+    private String password;
 
     @ManyToOne
     @JoinColumn(name = "role_id",nullable = false)
     private Role role;
 
+    @OneToOne(cascade =  CascadeType.ALL, mappedBy = "user")
+    private Customer customer;
+
+    @OneToOne(cascade =  CascadeType.ALL, mappedBy = "user")
+    private Admin admin;
 }

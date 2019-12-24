@@ -21,7 +21,7 @@ public class Role {
     @Enumerated(EnumType.STRING)
     @NaturalId
     @Column(length = 60)
-    private RoleName roleName; //change this to enum later
+    private RoleName roleName;
 
     public Role(RoleName roleCustomer) {
     }

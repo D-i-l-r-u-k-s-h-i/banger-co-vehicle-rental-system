@@ -43,7 +43,7 @@ public class CustomUserDetailService implements UserDetailsService {
 
     @Transactional
     public UserDetails loadUserById(Long id) {
-        Optional<AllUsers> user = userRepository.findById(id);
+        Optional<AllUsers> user = userRepository.findById(id.longValue());
         return UserSession.create(user.get());
     }
 
@@ -79,11 +79,11 @@ public class CustomUserDetailService implements UserDetailsService {
                 newCust.setCustomerContactNo(customerDTO.getCustomerContactNo());
                 newCust.setEmergencyContactNo(customerDTO.getCustomerEmergencyContactNo());
                 newCust.setCustomerEmail(customerDTO.getCustomerEmail());
-                newCust.setRole(new Role(2, RoleName.ROLE_CUSTOMER));
-                newCust.setUserId(newuser.getId());
-
-                customerRepository.save(newCust);
+//                newCust.setRole(new Role(2, RoleName.ROLE_CUSTOMER));
+//                newCust.setUserId(newuser.getId());
+                newCust.setUser(newuser);
                 userRepository.save(newuser);
+                customerRepository.save(newCust);
 
                 ret="Successful registration";
             }
@@ -128,7 +128,7 @@ public class CustomUserDetailService implements UserDetailsService {
         else{
             UserSession userSession = (UserSession) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-            if(bCryptPasswordEncoder.matches(adminDTO.getCurrentAdminPass(),userSession.getPassword())){
+            if(bCryptPasswordEncoder.matches(adminDTO.getCurrentAdminPass(),userSession.getPassword()) && userSession.getRole().getRoleId()==1){
                 String pwd = bCryptPasswordEncoder.encode(adminDTO.getPassword());
 
                 ModelMapper modelMapper= new ModelMapper();
@@ -136,7 +136,7 @@ public class CustomUserDetailService implements UserDetailsService {
                 AllUsers newuser=modelMapper.map(adminDTO,AllUsers.class);
                 newuser.setPassword(pwd);
                 newuser.setRole(new Role(1,RoleName.ROLE_ADMIN));
-                admin.setRole(new Role(1,RoleName.ROLE_ADMIN));
+//                admin.setRole(new Role(1,RoleName.ROLE_ADMIN));
 
                 adminRepository.save(admin);
                 userRepository.save(newuser);

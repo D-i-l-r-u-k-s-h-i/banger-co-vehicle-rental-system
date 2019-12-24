@@ -31,7 +31,6 @@ public class UserSession implements UserDetails {
     }
 
     public static UserSession create(AllUsers user) {
-//        List<GrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority(RoleName.ROLE_CUSTOMER.toString()));
         List<GrantedAuthority> authorities =new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority(user.getRole().getRoleName().toString()));
         

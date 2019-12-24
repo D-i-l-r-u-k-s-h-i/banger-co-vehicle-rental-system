@@ -1,5 +1,6 @@
 package lk.apiit.eirlss.bnco_vehicle_rental_backend.Auth.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -16,14 +17,18 @@ public class Admin implements Serializable {
     private long adminId;
 
     private String username;
-
+    //not encrypting since they are admin given passwords
     private String password;
 
     private String email;
 
     private String contactNo;
 
-    @ManyToOne
-    @JoinColumn(name = "role_id",nullable = false)
-    private Role role;
+    @OneToOne
+    @JoinColumn(name = "user_id",referencedColumnName = "id",nullable = false)
+    private AllUsers user;
+
+//    @ManyToOne
+//    @JoinColumn(name = "role_id",nullable = false)
+//    private Role role;
 }

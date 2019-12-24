@@ -16,14 +16,19 @@ public class Vehicle {
 
     private String vehicleName;
 
+    private String gearboxType;
+
     private String imgLink;
 
     private String plateNumber;
 
-    private double vehicleRentalPrice;
+    private String vehicleRentalPrice;
 
     private String availabilityStatus;
 
     private String vehicleType;
+
+    //for frontend
+    private int index;
 
 }

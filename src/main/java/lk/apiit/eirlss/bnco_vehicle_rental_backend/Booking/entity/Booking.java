@@ -5,6 +5,7 @@ import lk.apiit.eirlss.bnco_vehicle_rental_backend.Payment.entity.Payment;
 import lk.apiit.eirlss.bnco_vehicle_rental_backend.Vehicle.entity.Vehicle;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.NaturalId;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -18,21 +19,23 @@ public class Booking {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long bookingId;
 
-    private String bookingStatus;
-
     private LocalDateTime pickupDate;
 
     private  LocalDateTime returnDate;
 
     private String rentalType;
 
-    private int rentalPeriod;
+    private long rentalPeriod;
 
     private boolean isActive;
 
     private boolean isExtended;
 
     private boolean isLate;
+
+    @ManyToOne
+    @JoinColumn(name = "booking_status_type")
+    private BookingStatus bookingStatus;
 
     @ManyToOne
     @JoinColumn(name = "vehicle_id",nullable = false)

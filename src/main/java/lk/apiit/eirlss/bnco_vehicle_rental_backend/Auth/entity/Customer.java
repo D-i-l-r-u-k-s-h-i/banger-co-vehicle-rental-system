@@ -14,8 +14,6 @@ public class Customer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long customerId;
 
-    private long userId;
-
     private String customerFName;
 
     private String customerLName;
@@ -34,7 +32,12 @@ public class Customer {
 
     private boolean isBlacklisted;
 
-    @ManyToOne
-    @JoinColumn(name = "role_id",nullable = false)
-    private Role role;
+    @OneToOne
+    @JoinColumn(name = "user_id",referencedColumnName = "id",nullable = false)
+    private AllUsers user;
+
+
+//    @ManyToOne
+//    @JoinColumn(name = "role_id",nullable = false)
+//    private Role role;
 }

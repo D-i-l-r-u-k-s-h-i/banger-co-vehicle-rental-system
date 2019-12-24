@@ -15,9 +15,11 @@ public class VehicleDTO {
 
     private String vehicleName;
 
+    private String gearboxType;
+
     private String plateNumber;
 
-    private double vehicleRentalPrice;
+    private String vehicleRentalPrice;
 
     private String availabilityStatus;
 
