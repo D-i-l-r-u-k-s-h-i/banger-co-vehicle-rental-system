@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 
 @Getter
 @Setter
@@ -12,9 +13,9 @@ public class BookingDTO {
 
     private String bookingStatus;
 
-    private LocalDateTime pickupDate;
+    private Date pickupDate;
 
-    private  LocalDateTime returnDate;
+    private Date returnDate;
 
     private String rentalType;
 

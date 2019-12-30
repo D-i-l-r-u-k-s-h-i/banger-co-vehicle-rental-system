@@ -9,6 +9,7 @@ import org.hibernate.annotations.NaturalId;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.Date;
 
 @Entity
 @Getter
@@ -19,9 +20,9 @@ public class Booking {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long bookingId;
 
-    private LocalDateTime pickupDate;
+    private String pickupDate;
 
-    private  LocalDateTime returnDate;
+    private  String returnDate;
 
     private String rentalType;
 
@@ -41,11 +42,13 @@ public class Booking {
     @JoinColumn(name = "vehicle_id",nullable = false)
     private Vehicle vehicle;
 
+    //add additional equipment column as well
+
     @ManyToOne
     @JoinColumn(name = "customer_id",nullable = false)
     private Customer customer;
 
     @ManyToOne
-    @JoinColumn(name = "payment_id",nullable = false)
+    @JoinColumn(name = "payment_id")
     private Payment payment;
 }

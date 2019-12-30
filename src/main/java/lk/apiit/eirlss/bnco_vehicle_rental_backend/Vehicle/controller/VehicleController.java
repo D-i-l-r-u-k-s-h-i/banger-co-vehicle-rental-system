@@ -1,12 +1,10 @@
 package lk.apiit.eirlss.bnco_vehicle_rental_backend.Vehicle.controller;
 
-import lk.apiit.eirlss.bnco_vehicle_rental_backend.Vehicle.DTO.PropertiesDTO;
 import lk.apiit.eirlss.bnco_vehicle_rental_backend.Vehicle.DTO.VehicleDTO;
 import lk.apiit.eirlss.bnco_vehicle_rental_backend.Vehicle.Service.VehicleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,9 +23,7 @@ public class VehicleController {
 
     @RequestMapping(value = "/",method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getVehicles(@RequestHeader(value = "Authorization") String token){
-        PropertiesDTO propertiesDTO=new PropertiesDTO();
-        propertiesDTO.setProperties(vehicleService.getAllVehicles());
-        return ResponseEntity.ok(propertiesDTO);
+        return ResponseEntity.ok(vehicleService.getAllVehicles());
     }
 
     @RequestMapping(value = "/update",method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)

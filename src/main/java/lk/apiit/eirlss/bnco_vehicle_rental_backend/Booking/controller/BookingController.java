@@ -8,6 +8,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.text.ParseException;
+
 @Controller
 @RequestMapping(path = "/bookings")
 public class BookingController {
@@ -15,7 +17,7 @@ public class BookingController {
     BookingService bookingService;
 
     @RequestMapping(value = "/save", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> addVehicle(@RequestHeader(value = "Authorization") String token, @RequestBody BookingDTO bookingDTO) {
+    public ResponseEntity<?> addVehicle(@RequestHeader(value = "Authorization") String token, @RequestBody BookingDTO bookingDTO){
         return ResponseEntity.ok(bookingService.saveBooking(bookingDTO));
     }
 

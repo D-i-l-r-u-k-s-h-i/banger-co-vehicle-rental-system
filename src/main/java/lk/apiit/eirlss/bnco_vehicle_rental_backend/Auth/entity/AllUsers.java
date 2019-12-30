@@ -1,5 +1,6 @@
 package lk.apiit.eirlss.bnco_vehicle_rental_backend.Auth.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -23,9 +24,11 @@ public class AllUsers implements Serializable {
     @JoinColumn(name = "role_id",nullable = false)
     private Role role;
 
+    @JsonIgnore
     @OneToOne(cascade =  CascadeType.ALL, mappedBy = "user")
     private Customer customer;
 
+    @JsonIgnore
     @OneToOne(cascade =  CascadeType.ALL, mappedBy = "user")
     private Admin admin;
 }
