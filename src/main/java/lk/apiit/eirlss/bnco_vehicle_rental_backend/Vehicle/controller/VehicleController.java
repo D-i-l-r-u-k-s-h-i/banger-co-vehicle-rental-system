@@ -33,7 +33,7 @@ public class VehicleController {
     }
 
     @RequestMapping(value = "/delete/{id}",method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> updateVehicle(@RequestHeader(value = "Authorization") String token, @PathVariable(name="id") long id){
+    public ResponseEntity<?> deleteVehicle(@RequestHeader(value = "Authorization") String token, @PathVariable(name="id") long id){
         vehicleService.deleteVehicle(id);
         return ResponseEntity.ok("");
     }

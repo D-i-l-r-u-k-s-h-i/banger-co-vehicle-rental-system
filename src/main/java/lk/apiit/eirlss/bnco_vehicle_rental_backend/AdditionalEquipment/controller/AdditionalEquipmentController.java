@@ -16,23 +16,23 @@ public class AdditionalEquipmentController {
 
     //only admin can perform this action
     @RequestMapping(value = "/save",method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> addVehicle(@RequestHeader(value = "Authorization") String token, @RequestBody AEquipsDTO aEquipsDTO){
+    public ResponseEntity<?> addAdditionalEquipment(@RequestHeader(value = "Authorization") String token, @RequestBody AEquipsDTO aEquipsDTO){
         return ResponseEntity.ok(additionalEquipmentService.addAdditionalEquipment(aEquipsDTO));
     }
 
     @RequestMapping(value = "/",method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> getVehicles(@RequestHeader(value = "Authorization") String token){
+    public ResponseEntity<?> getAdditionalEquipment(@RequestHeader(value = "Authorization") String token){
         return ResponseEntity.ok(additionalEquipmentService.getAdditionalEquipment());
     }
 
     @RequestMapping(value = "/update",method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> updateVehicle(@RequestHeader(value = "Authorization") String token,@RequestBody AEquipsDTO aeDTO){
+    public ResponseEntity<?> updateAdditionalEquipment(@RequestHeader(value = "Authorization") String token,@RequestBody AEquipsDTO aeDTO){
         additionalEquipmentService.updateAdditionalEquipment(aeDTO);
         return ResponseEntity.ok("");
     }
 
     @RequestMapping(value = "/delete/{id}",method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> updateVehicle(@RequestHeader(value = "Authorization") String token, @PathVariable(name="id") long id){
+    public ResponseEntity<?> deleteAdditionalEquipment(@RequestHeader(value = "Authorization") String token, @PathVariable(name="id") long id){
         additionalEquipmentService.deleteAdditionalEquipment(id);
         return ResponseEntity.ok("");
     }

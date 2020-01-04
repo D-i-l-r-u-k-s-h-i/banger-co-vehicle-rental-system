@@ -32,8 +32,4 @@ public class RatingsAndReviews {
     @JoinColumn(name = "vehicle_id",nullable = false)
     private Vehicle vehicle;
 
-    public RatingsAndReviews(Customer customer, double customerRating) {
-        this.customerRating = customerRating;
-        this.customer = customer;
-    }
 }

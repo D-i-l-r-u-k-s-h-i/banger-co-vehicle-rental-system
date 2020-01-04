@@ -19,13 +19,15 @@ public class VehicleDTO {
 
     private String plateNumber;
 
-    private String vehicleRentalPrice;
+    private double vehicleRentalPrice;
 
     private String availabilityStatus;
 
     private String vehicleType;
 
-    private String vehicleRating;
+    private String fuelType;
+
+    private double vehicleRating;;
 
     private List<String> reviews;
 

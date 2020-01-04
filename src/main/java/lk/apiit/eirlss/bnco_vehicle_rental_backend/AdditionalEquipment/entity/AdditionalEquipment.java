@@ -17,6 +17,14 @@ public class AdditionalEquipment {
 
     private String equipmentName;
 
-    private String aeRentalStatus;
+    private String imgLink;
+
+    private double aeRentalPrice;
+
+    private String description;
+
+    private String type;
+    //for frontend
+    private int index;
 
 }

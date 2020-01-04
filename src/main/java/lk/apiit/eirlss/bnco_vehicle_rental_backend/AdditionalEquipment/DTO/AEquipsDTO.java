@@ -10,5 +10,13 @@ public class AEquipsDTO {
 
     private String equipmentName;
 
-    private String equipmentRentalStatus;
+    private String imgLink;
+
+    private double aeRentalPrice;
+
+    private String description;
+
+    private String type;
+    //for frontend
+    private int index;
 }

@@ -22,13 +22,17 @@ public class Vehicle {
 
     private String plateNumber;
 
-    private String vehicleRentalPrice;
+    private double vehicleRentalPrice;
 
     private String availabilityStatus;
 
     private String vehicleType;
 
+    private String fuelType; //fuel type and hybrid
+
     //for frontend
     private int index;
+
+    private double vehicleRating;
 
 }

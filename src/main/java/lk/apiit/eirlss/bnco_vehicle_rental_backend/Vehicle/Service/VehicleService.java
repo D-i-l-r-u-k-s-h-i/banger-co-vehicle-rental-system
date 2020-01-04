@@ -2,6 +2,7 @@ package lk.apiit.eirlss.bnco_vehicle_rental_backend.Vehicle.Service;
 
 import lk.apiit.eirlss.bnco_vehicle_rental_backend.Auth.UserSession;
 import lk.apiit.eirlss.bnco_vehicle_rental_backend.Auth.entity.RoleName;
+import lk.apiit.eirlss.bnco_vehicle_rental_backend.Util.Utils;
 import lk.apiit.eirlss.bnco_vehicle_rental_backend.Vehicle.DTO.VehicleDTO;
 import lk.apiit.eirlss.bnco_vehicle_rental_backend.Vehicle.Repository.VehicleRepository;
 import lk.apiit.eirlss.bnco_vehicle_rental_backend.Vehicle.entity.Vehicle;
@@ -35,15 +36,9 @@ public class VehicleService {
     }
 
     public List<VehicleDTO> getAllVehicles(){
-        List<Vehicle> vehicles=vehicleRepository.findAll();
-        List<VehicleDTO> vehicleList=new ArrayList<>();
+        List<Vehicle> vehicles=vehicleRepository.findAllByOrderByIndex();
+        List<VehicleDTO> vehicleList= Utils.mapAll(vehicles,VehicleDTO.class);
 
-        for (Vehicle vehicle:vehicles) {
-            ModelMapper modelMapper = new ModelMapper();
-            VehicleDTO v=modelMapper.map(vehicle,VehicleDTO.class);
-
-            vehicleList.add(v);
-        }
         return(vehicleList);
     }
 
@@ -72,7 +67,7 @@ public class VehicleService {
         if(vehicleDTO.getVehicleType()!=null){
             vehicle.setVehicleType(vehicleDTO.getVehicleType());
         }
-        if(vehicleDTO.getVehicleRentalPrice()!=null){
+        if(vehicleDTO.getVehicleRentalPrice()!=0){
             vehicle.setVehicleRentalPrice(vehicleDTO.getVehicleRentalPrice());
         }
 

@@ -1,5 +1,6 @@
-package lk.apiit.eirlss.bnco_vehicle_rental_backend.AdditionalEquipment.entity;
+package lk.apiit.eirlss.bnco_vehicle_rental_backend.Booking.entity;
 
+import lk.apiit.eirlss.bnco_vehicle_rental_backend.AdditionalEquipment.entity.AdditionalEquipment;
 import lk.apiit.eirlss.bnco_vehicle_rental_backend.Booking.entity.Booking;
 import lombok.Getter;
 import lombok.Setter;
@@ -21,5 +22,5 @@ public class BookingAdditionalEquipment {
 
     @ManyToOne
     @JoinColumn(name = "equipment_id",nullable = false)
-    private AdditionalEquipment additionalEquipment;
+    private AdditionalEquipment equipment;
 }

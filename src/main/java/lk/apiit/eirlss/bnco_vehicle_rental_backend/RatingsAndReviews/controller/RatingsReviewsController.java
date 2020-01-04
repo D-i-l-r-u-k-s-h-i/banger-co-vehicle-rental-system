@@ -25,9 +25,9 @@ public class RatingsReviewsController {
         return ResponseEntity.ok(ratingsAndReviewsService.getReviewsForVehicle(id));
     }
 
-    @RequestMapping(value = "/ratings/{id}", method = RequestMethod.GET)
-    public ResponseEntity<?> getVehicleRating(@PathVariable(name = "id") long id, @RequestHeader(value = "Authorization") String token){
-        return ResponseEntity.ok(ratingsAndReviewsService.calculateOverallRating(id));
-    }
+//    @RequestMapping(value = "/ratings/{id}", method = RequestMethod.GET)
+//    public ResponseEntity<?> getVehicleRating(@PathVariable(name = "id") long id, @RequestHeader(value = "Authorization") String token){
+//        return ResponseEntity.ok(ratingsAndReviewsService.calculateOverallRating(id));
+//    }
 
 }

@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 public class TimeSlotsDTO {
-    private LocalDateTime date;
+    private LocalDateTime timeSlot;
 
     private int hour;
 

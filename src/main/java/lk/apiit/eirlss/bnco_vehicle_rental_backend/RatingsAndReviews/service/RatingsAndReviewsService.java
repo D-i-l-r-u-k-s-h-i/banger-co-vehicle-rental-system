@@ -82,6 +82,8 @@ public class RatingsAndReviewsService {
             ret="successful saving of rating or review";
         }
 
+        calculateOverallRating(dto.getVehicleId());
+
         return ret;
     }
 
@@ -126,6 +128,9 @@ public class RatingsAndReviewsService {
         int count5stars=getRatingsForVehicle(vehicle,5);
 
         double weighted_mean=(count1stars+2*count2stars+3*count3stars+4*count4stars+5*count5stars)/totalRatings;
+
+        vehicle.setVehicleRating(weighted_mean);
+        vehicleRepository.save(vehicle);
 
         return weighted_mean;
     }
