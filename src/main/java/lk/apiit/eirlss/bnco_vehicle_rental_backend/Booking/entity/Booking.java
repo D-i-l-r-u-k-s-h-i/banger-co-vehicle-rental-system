@@ -38,10 +38,6 @@ public class Booking {
     @JoinColumn(name = "booking_status_type")
     private BookingStatus bookingStatus;
 
-//    @ManyToOne
-//    @JoinColumn(name = "vehicle_id",nullable = false)
-//    private Vehicle vehicle;
-
     @ManyToOne
     @JoinColumn(name = "customer_id",nullable = false)
     private Customer customer;

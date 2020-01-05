@@ -58,4 +58,10 @@ public class BookingController {
         bookingService.removeItemFromBooking(dto);
         return ResponseEntity.ok("");
     }
+
+    @RequestMapping(value = "/extend/{booking_id}", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> extendBooking(@RequestHeader(value = "Authorization") String token, @PathVariable(name = "booking_id") long booking_id) throws ParseException {
+
+        return ResponseEntity.ok(bookingService.extendBooking(booking_id));
+    }
 }

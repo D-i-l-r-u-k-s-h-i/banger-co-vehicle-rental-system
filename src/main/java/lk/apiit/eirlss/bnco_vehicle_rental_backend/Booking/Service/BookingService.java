@@ -18,8 +18,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.*;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static java.util.stream.Collectors.toList;
@@ -162,6 +165,13 @@ public class BookingService {
                     bookingVehicleRepository.save(bookingVehicle);
                 }
             }
+            //call method
+            if(getPastBookingsOfUser()==null){
+                customer.setCustomerStatus("NEW");
+            }
+            else{
+                customer.setCustomerStatus("REPEAT");
+            }
             ret="Successful booking";
         }
         else {
@@ -280,6 +290,15 @@ public class BookingService {
 
     public void updateBookingStatus(String status){
         //if picked up or returned
+        //if late and give 2hour late margin for pick up and change customer status to black listed
+    }
+
+    public boolean isBlacklisted(){
+        boolean isLate=false;
+
+        
+
+        return isLate;
     }
 
     public List<BookingDTO> getCurrentBookingsOfUser(){
@@ -343,8 +362,67 @@ public class BookingService {
         return bookingDTOList;
     }
 
-    public void extendBooking(long booking_id){
+    //true if can be extended
+    public Boolean extendBooking(long booking_id) throws ParseException {
+        Booking booking=bookingRepository.findBookingByBookingId(booking_id);
 
+        UserSession userSession = (UserSession) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Customer customer= customerRepository.findByUserId(userSession.getId());
+
+        SimpleDateFormat sdf = new SimpleDateFormat("E, dd-M-yyyy hh:mm:ss a");
+        Date returnDate=sdf.parse(booking.getReturnDate());
+
+        //vehicles and equipments for this booking
+        List<BookingVehicle> bookingVehicles=bookingVehicleRepository.getAllByBooking(booking);
+        List<BookingAdditionalEquipment> bookingAdditionalEquipments=bookingAdditionalEquipsRepository.getAllByBooking(booking);
+
+
+        SimpleDateFormat sdf2 = new SimpleDateFormat("yyyyMMdd");
+        Date currentDate = new Date();
+
+        LocalDateTime localDateTime = currentDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+        LocalDateTime tomorrowsDate=localDateTime.plusDays(1);
+
+        Date tomosDate=Date.from(tomorrowsDate.atZone(ZoneId.systemDefault()).toInstant());
+        SimpleDateFormat sdf3 = new SimpleDateFormat("E, dd-M-yyyy");
+        String tomo=sdf3.format(tomosDate);
+
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.HOUR_OF_DAY,16);
+        cal.set(Calendar.MINUTE,0);
+        Date fourpm=cal.getTime();
+
+
+        Boolean canExtend=false;
+
+        //if returndate is before 4.pm today
+        if(sdf2.format(returnDate).equals(sdf2.format(new Date())) && returnDate.getTime()<fourpm.getTime()){
+            List<Booking> bookingsForTomo=bookingRepository.findAllByPickupDateStartsWith(tomo);
+
+            //check whether any of the booked vehicles or equipments are booked for tomorrow
+            for (Booking b:bookingsForTomo) {
+                List<BookingVehicle> bvList=bookingVehicleRepository.getAllByBooking(b);
+                List<BookingAdditionalEquipment> aebList=bookingAdditionalEquipsRepository.getAllByBooking(b);
+
+                boolean areVehiclesBooked =  bvList.stream().anyMatch(element -> bookingVehicles.contains(element));
+                boolean areEquipmentBooked = aebList.stream().anyMatch(element -> bookingAdditionalEquipments.contains(element));
+
+                //if any of them are booked for tomorrow
+                if(areVehiclesBooked || areEquipmentBooked){
+                    return canExtend; //cannot extend (returns false)
+                }
+            }
+
+            canExtend= true;
+        }
+
+        //set isExtended in booking to true if extended
+        if(canExtend==true && customer.getCustomerStatus().equals("REPEAT")){
+            booking.setReturnDate(sdf.format(fourpm));
+            booking.setExtended(true);
+        }
+
+        return canExtend;
     }
 
     public double calculateTotal(long booking_id){
@@ -422,4 +500,8 @@ public class BookingService {
         return bookingDTOList;
     }
 
+    //for admin
+    public void viewAllBookingsForToday(){
+
+    }
 }
