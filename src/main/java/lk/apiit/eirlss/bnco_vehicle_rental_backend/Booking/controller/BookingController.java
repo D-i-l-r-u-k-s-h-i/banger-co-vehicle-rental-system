@@ -22,10 +22,9 @@ public class BookingController {
         return ResponseEntity.ok(bookingService.saveBooking(bookingDTO));
     }
 
-    @RequestMapping(value = "/cancel/{id}", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/cancel/{id}", method = RequestMethod.POST)
     public ResponseEntity<?> cancelBooking(@RequestHeader(value = "Authorization") String token, @PathVariable(name = "id") long id) {
-        bookingService.cancelBooking(id);
-        return ResponseEntity.ok("");
+        return ResponseEntity.ok(bookingService.cancelBooking(id));
     }
 
     @RequestMapping(value = "/timeslots/vehicle/{id}", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -53,13 +52,13 @@ public class BookingController {
         return ResponseEntity.ok(bookingService.getCancelledBookingsOfUser());
     }
 
-    @RequestMapping(value = "/cancelitem", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/cancelitem", method = RequestMethod.POST)
     public ResponseEntity<?> deleteItemFromBooking(@RequestHeader(value = "Authorization") String token, @RequestBody MakeBookingDTO dto) {
         bookingService.removeItemFromBooking(dto);
         return ResponseEntity.ok("");
     }
 
-    @RequestMapping(value = "/extend/{booking_id}", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/extend/{booking_id}", method = RequestMethod.POST)
     public ResponseEntity<?> extendBooking(@RequestHeader(value = "Authorization") String token, @PathVariable(name = "booking_id") long booking_id) throws ParseException {
 
         return ResponseEntity.ok(bookingService.extendBooking(booking_id));

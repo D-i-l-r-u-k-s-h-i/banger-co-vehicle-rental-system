@@ -21,7 +21,7 @@ public class AdditionalEquipmentController {
     }
 
     @RequestMapping(value = "/",method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> getAdditionalEquipment(@RequestHeader(value = "Authorization") String token){
+    public ResponseEntity<?> getAdditionalEquipment(){ //@RequestHeader(value = "Authorization") String token
         return ResponseEntity.ok(additionalEquipmentService.getAdditionalEquipment());
     }
 

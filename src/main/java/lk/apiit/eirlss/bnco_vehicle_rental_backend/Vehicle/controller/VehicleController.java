@@ -22,7 +22,7 @@ public class VehicleController {
     }
 
     @RequestMapping(value = "/",method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> getVehicles(@RequestHeader(value = "Authorization") String token){
+    public ResponseEntity<?> getVehicles(){ //@RequestHeader(value = "Authorization") String token
         return ResponseEntity.ok(vehicleService.getAllVehicles());
     }
 

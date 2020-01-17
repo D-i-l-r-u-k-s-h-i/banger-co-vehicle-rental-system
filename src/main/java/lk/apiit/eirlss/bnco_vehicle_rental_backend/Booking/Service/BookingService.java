@@ -257,7 +257,8 @@ public class BookingService {
     }
 
     //not deleting the whole booking from the bookings list, but delete the time slots
-    public void cancelBooking(long bookingId){
+    public String cancelBooking(long bookingId){
+
         Booking booking=bookingRepository.findBookingByBookingId(bookingId);
         booking.setBookingStatus(new BookingStatus(BookingStatusType.CANCELLED));
         booking.setPickupDate(null);
@@ -267,6 +268,8 @@ public class BookingService {
         //delete from booking slots
         List<TimeSlots> timeSlots=timeSlotsRepository.getTimeSlotsByBooking(booking);
         timeSlotsRepository.deleteInBatch(timeSlots);//test and see whether to use deleteAll()
+
+        return "Successful";
     }
 
     //remove item from equipmentBooking and vehicleBooking tables
