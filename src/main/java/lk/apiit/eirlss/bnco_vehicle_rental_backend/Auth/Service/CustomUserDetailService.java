@@ -7,6 +7,7 @@ import lk.apiit.eirlss.bnco_vehicle_rental_backend.Auth.Repository.CustomerRepos
 import lk.apiit.eirlss.bnco_vehicle_rental_backend.Auth.Repository.UserRepository;
 import lk.apiit.eirlss.bnco_vehicle_rental_backend.Auth.UserSession;
 import lk.apiit.eirlss.bnco_vehicle_rental_backend.Auth.entity.*;
+import lk.apiit.eirlss.bnco_vehicle_rental_backend.Util.Utils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -17,6 +18,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 @Service
 public class CustomUserDetailService implements UserDetailsService {
@@ -149,5 +151,13 @@ public class CustomUserDetailService implements UserDetailsService {
 
         }
         return ret;
+    }
+
+    public List<CustomerDTO> searchUser(String name){
+        List<Customer> customerList=customerRepository.searchCustomer(name);
+
+        List<CustomerDTO> dtoList= Utils.mapAll(customerList,CustomerDTO.class);
+
+        return dtoList;
     }
 }

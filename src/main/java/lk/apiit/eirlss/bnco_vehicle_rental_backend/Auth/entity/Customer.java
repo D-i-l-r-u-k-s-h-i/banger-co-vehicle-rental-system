@@ -1,11 +1,15 @@
 package lk.apiit.eirlss.bnco_vehicle_rental_backend.Auth.entity;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
 
 @Entity
+@AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Setter
 @Table(name = "customer" ,schema = "public")

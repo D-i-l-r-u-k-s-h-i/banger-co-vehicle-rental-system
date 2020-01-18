@@ -46,7 +46,7 @@ public class BookingController {
     public ResponseEntity<?> pastBookingsByUser(@RequestHeader(value = "Authorization") String token) {
         return ResponseEntity.ok(bookingService.getPastBookingsOfUser());
     }
-
+    //for the admin when viewing user
     @RequestMapping(value = "/cancelled", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> cancelledBookingsByUser(@RequestHeader(value = "Authorization") String token) {
         return ResponseEntity.ok(bookingService.getCancelledBookingsOfUser());
@@ -62,5 +62,28 @@ public class BookingController {
     public ResponseEntity<?> extendBooking(@RequestHeader(value = "Authorization") String token, @PathVariable(name = "booking_id") long booking_id) throws ParseException {
 
         return ResponseEntity.ok(bookingService.extendBooking(booking_id));
+    }
+
+    @RequestMapping(value = "/today", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> bookingsForToday(@RequestHeader(value = "Authorization") String token) throws ParseException {
+        return ResponseEntity.ok(bookingService.viewAllBookingsForToday());
+    }
+
+    @RequestMapping(value = "/pickup/{booking_id}", method = RequestMethod.POST)
+    public ResponseEntity<?> pickupBooking(@RequestHeader(value = "Authorization") String token, @PathVariable(name = "booking_id") long booking_id) throws ParseException {
+        bookingService.onPickup(booking_id);
+        return ResponseEntity.ok("Pickup confirmed");
+    }
+
+    @RequestMapping(value = "/return/{booking_id}", method = RequestMethod.POST)
+    public ResponseEntity<?> returnBooking(@RequestHeader(value = "Authorization") String token, @PathVariable(name = "booking_id") long booking_id) throws ParseException {
+        bookingService.onReturn(booking_id);
+        return ResponseEntity.ok("Return confirmed");
+    }
+
+    @RequestMapping(value = "/blacklist/{booking_id}", method = RequestMethod.POST)
+    public ResponseEntity<?> blacklistUser(@RequestHeader(value = "Authorization") String token, @PathVariable(name = "booking_id") long booking_id) throws ParseException {
+        bookingService.blacklistCustomer(booking_id);
+        return ResponseEntity.ok("User Blacklisted Successfully");
     }
 }

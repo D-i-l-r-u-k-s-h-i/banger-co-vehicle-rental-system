@@ -10,6 +10,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.text.ParseException;
+
 @Controller
 @RequestMapping("/admin")
 @ResponseBody
@@ -24,4 +26,8 @@ public class UserController {
         return ResponseEntity.ok(customUserDetailService.saveAdmin(adminDTO));
     }
 
+    @RequestMapping(value = "/search/{name}", method = RequestMethod.GET)
+    public ResponseEntity<?> blacklistUser(@RequestHeader(value = "Authorization") String token, @PathVariable(name = "name") String name){
+        return ResponseEntity.ok(customUserDetailService.searchUser(name));
+    }
 }

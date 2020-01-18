@@ -52,130 +52,137 @@ public class BookingService {
         UserSession userSession = (UserSession) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Customer customer= customerRepository.findByUserId(userSession.getId());
 
-        Date start=bookingDTO.getPickupDate();
-        Date end=bookingDTO.getReturnDate();
-
-        System.out.println(start +" , "+end);
-
-        //for saving in the DB purposes. so it can be displayed without having to convert again
-        SimpleDateFormat formatter = new SimpleDateFormat("E, dd-M-yyyy hh:mm:ss a");
-        String startDate = formatter.format(start);
-        String endDate=formatter.format(end);
-
-        //for duration calculation and saving in another table
-        LocalDateTime startDateTime=start.toInstant()
-                .atZone(ZoneId.systemDefault())
-                .toLocalDateTime();
-        LocalDateTime endDateTime=end.toInstant()
-                .atZone(ZoneId.systemDefault())
-                .toLocalDateTime();
-
-        Duration duration=Duration.between(startDateTime,endDateTime);
-
-        List< LocalDateTime > slots = new ArrayList<>() ;
-        LocalDateTime ldt = startDateTime ;
-        while (ldt.isBefore( endDateTime )) {
-            slots.add( ldt ) ;
-            // Prepare for the next loop.
-            ldt = ldt.plusMinutes(30);
-        }
-
         String ret="";
 
-        if(duration.toHours()>5 && duration.toHours()<336){
-            //get current Bookings of user
-            List<BookingDTO> currentBookings=getCurrentBookingsOfUser();
-            boolean isMatch=false;
-            BookingDTO addToThisBooking=null;
+        if(customer.isBlacklisted()){
+            ret="Sorry you have been blacklisted due to a previous booking that was never picked up!";
+        }
+        else{
+            Date start=bookingDTO.getPickupDate();
+            Date end=bookingDTO.getReturnDate();
 
-            //if(currentBookings!==null){check the return date of each of the current bookings.}
-            if(currentBookings!=null){
-                // if return date matches, get that booking and add the vehicle/additional equipment here}
-                for (BookingDTO booking:currentBookings) {
-                    if(booking.getReturnDate().equals(endDate)){
-                        isMatch=true;
-                        addToThisBooking=booking;
-                        //break out of loop
+            System.out.println(start +" , "+end);
+
+            //for saving in the DB purposes. so it can be displayed without having to convert again
+            SimpleDateFormat formatter = new SimpleDateFormat("E, dd-M-yyyy hh:mm:ss a");
+            String startDate = formatter.format(start);
+            String endDate=formatter.format(end);
+
+            //for duration calculation and saving in another table
+            LocalDateTime startDateTime=start.toInstant()
+                    .atZone(ZoneId.systemDefault())
+                    .toLocalDateTime();
+            LocalDateTime endDateTime=end.toInstant()
+                    .atZone(ZoneId.systemDefault())
+                    .toLocalDateTime();
+
+            Duration duration=Duration.between(startDateTime,endDateTime);
+
+            List< LocalDateTime > slots = new ArrayList<>() ;
+            LocalDateTime ldt = startDateTime ;
+            while (ldt.isBefore( endDateTime )) {
+                slots.add( ldt ) ;
+                // Prepare for the next loop.
+                ldt = ldt.plusMinutes(30);
+            }
+
+
+
+            if(duration.toHours()>5 && duration.toHours()<336){
+                //get current Bookings of user
+                List<BookingDTO> currentBookings=getCurrentBookingsOfUser();
+                boolean isMatch=false;
+                BookingDTO addToThisBooking=null;
+
+                //if(currentBookings!==null){check the return date of each of the current bookings.}
+                if(currentBookings!=null){
+                    // if return date matches, get that booking and add the vehicle/additional equipment here}
+                    for (BookingDTO booking:currentBookings) {
+                        if(booking.getReturnDate().equals(endDate)){
+                            isMatch=true;
+                            addToThisBooking=booking;
+                            //break out of loop
+                        }
+                    }
+
+                    //add to an existing booking
+                    if(addToThisBooking!=null){
+                        if(bookingDTO.getEquipmentId()!=0){
+                            ModelMapper mapper=new ModelMapper();
+                            BookingAdditionalEquipment bookingAE=mapper.map(bookingDTO,BookingAdditionalEquipment.class);
+
+                            Booking booking=bookingRepository.findBookingByBookingId(addToThisBooking.getBookingId());
+                            bookingAE.setBooking(booking);
+//                    bookingAE.setAdditionalEquipment();
+                            //save additioonal equipment in booking
+                            bookingAdditionalEquipsRepository.save(bookingAE);
+
+                        }
+                        if(bookingDTO.getVehicleId()!=0){
+                            ModelMapper mapper=new ModelMapper();
+                            BookingVehicle bookingVehicle=mapper.map(bookingDTO,BookingVehicle.class);
+
+                            Booking booking=bookingRepository.findBookingByBookingId(addToThisBooking.getBookingId());
+                            bookingVehicle.setBooking(booking);
+
+                            //save vehicle under this booking
+                            bookingVehicleRepository.save(bookingVehicle);
+                        }
                     }
                 }
 
-                //add to an existing booking
-                if(addToThisBooking!=null){
+                if(currentBookings==null || isMatch==false ){
+                    ModelMapper modelMapper = new ModelMapper();
+                    Booking booking=modelMapper.map(bookingDTO,Booking.class);
+
+                    booking.setPickupDate(startDate);
+                    booking.setReturnDate(endDate);
+                    booking.setCustomer(customer);
+                    booking.setBookingStatus(new BookingStatus(BookingStatusType.PENDING));
+                    booking.setRentalPeriod(duration.toHours());
+                    booking.setActive(true);
+
+
+                    bookingRepository.save(booking);
+
+                    for (LocalDateTime datetime:slots) {
+                        TimeSlots timeSlot=new TimeSlots();
+                        timeSlot.setBooking(booking);
+                        timeSlot.setTimeSlot(datetime);
+
+                        timeSlotsRepository.save(timeSlot);
+                    }
+
+                    //a new booking for the additional equipment
                     if(bookingDTO.getEquipmentId()!=0){
                         ModelMapper mapper=new ModelMapper();
                         BookingAdditionalEquipment bookingAE=mapper.map(bookingDTO,BookingAdditionalEquipment.class);
 
-                        Booking booking=bookingRepository.findBookingByBookingId(addToThisBooking.getBookingId());
-                        bookingAE.setBooking(booking);
-//                    bookingAE.setAdditionalEquipment();
                         //save additioonal equipment in booking
                         bookingAdditionalEquipsRepository.save(bookingAE);
-
                     }
+
                     if(bookingDTO.getVehicleId()!=0){
                         ModelMapper mapper=new ModelMapper();
                         BookingVehicle bookingVehicle=mapper.map(bookingDTO,BookingVehicle.class);
-
-                        Booking booking=bookingRepository.findBookingByBookingId(addToThisBooking.getBookingId());
                         bookingVehicle.setBooking(booking);
 
                         //save vehicle under this booking
                         bookingVehicleRepository.save(bookingVehicle);
                     }
                 }
-            }
-
-            if(currentBookings==null || isMatch==false ){
-                ModelMapper modelMapper = new ModelMapper();
-                Booking booking=modelMapper.map(bookingDTO,Booking.class);
-
-                booking.setPickupDate(startDate);
-                booking.setReturnDate(endDate);
-                booking.setCustomer(customer);
-                booking.setBookingStatus(new BookingStatus(BookingStatusType.PENDING));
-                booking.setRentalPeriod(duration.toHours());
-                booking.setActive(true);
-
-
-                bookingRepository.save(booking);
-
-                for (LocalDateTime datetime:slots) {
-                    TimeSlots timeSlot=new TimeSlots();
-                    timeSlot.setBooking(booking);
-                    timeSlot.setTimeSlot(datetime);
-
-                    timeSlotsRepository.save(timeSlot);
+                //call method
+                if(getPastBookingsOfUser()==null){
+                    customer.setCustomerStatus("NEW");
                 }
-
-                //a new booking for the additional equipment
-                if(bookingDTO.getEquipmentId()!=0){
-                    ModelMapper mapper=new ModelMapper();
-                    BookingAdditionalEquipment bookingAE=mapper.map(bookingDTO,BookingAdditionalEquipment.class);
-
-                    //save additioonal equipment in booking
-                    bookingAdditionalEquipsRepository.save(bookingAE);
+                else{
+                    customer.setCustomerStatus("REPEAT");
                 }
-
-                if(bookingDTO.getVehicleId()!=0){
-                    ModelMapper mapper=new ModelMapper();
-                    BookingVehicle bookingVehicle=mapper.map(bookingDTO,BookingVehicle.class);
-                    bookingVehicle.setBooking(booking);
-
-                    //save vehicle under this booking
-                    bookingVehicleRepository.save(bookingVehicle);
-                }
+                ret="Successful booking";
             }
-            //call method
-            if(getPastBookingsOfUser()==null){
-                customer.setCustomerStatus("NEW");
+            else {
+                ret="The selected time range should be between 5hrs and 2 weeks only.";
             }
-            else{
-                customer.setCustomerStatus("REPEAT");
-            }
-            ret="Successful booking";
-        }
-        else {
-            ret="The selected time range should be between 5hrs and 2 weeks only.";
         }
         return ret;
     }
@@ -291,17 +298,24 @@ public class BookingService {
 
     }
 
-    public void updateBookingStatus(String status){
-        //if picked up or returned
-        //if late and give 2hour late margin for pick up and change customer status to black listed
+    public void onPickup(long bookingId){
+       Booking booking=bookingRepository.findBookingByBookingId(bookingId);
+       booking.setBookingStatus(new BookingStatus(BookingStatusType.PICKED_UP));
+       bookingRepository.save(booking);
     }
 
-    public boolean isBlacklisted(){
-        boolean isLate=false;
+    public void onReturn(long bookingId){
+        Booking booking=bookingRepository.findBookingByBookingId(bookingId);
+        booking.setBookingStatus(new BookingStatus(BookingStatusType.RETURNED));
+        bookingRepository.save(booking);
+    }
 
-        
-
-        return isLate;
+    public void blacklistCustomer(long bookingId){
+        //get customer from booking id
+        Booking booking=bookingRepository.findBookingByBookingId(bookingId);
+        Customer customer=booking.getCustomer();
+        customer.setBlacklisted(true);
+        customerRepository.save(customer);
     }
 
     public List<BookingDTO> getCurrentBookingsOfUser(){
@@ -504,7 +518,43 @@ public class BookingService {
     }
 
     //for admin
-    public void viewAllBookingsForToday(){
+    public List<BookingDTO> viewAllBookingsForToday() throws ParseException {
+        //pickups and returns for today
+        Date currentDate = new Date();
+        LocalDateTime localDateTime = currentDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
 
+        Date todaysDate=Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
+        SimpleDateFormat sdf3 = new SimpleDateFormat("E, dd-M-yyyy");
+        String today=sdf3.format(todaysDate);
+
+        List<Booking> allBookingsForToday=bookingRepository.findAllByPickupDateStartsWithOrReturnDateStartsWith(today,today);
+
+        List<BookingDTO> bookingsDTOList=Utils.mapAll(allBookingsForToday,BookingDTO.class);
+        bookingsDTOList.forEach(bookingdto->{
+            double total=calculateTotal(bookingdto.getBookingId());
+            bookingdto.setTotal(total);
+        });
+
+        SimpleDateFormat sdf = new SimpleDateFormat("E, dd-M-yyyy hh:mm:ss a");
+
+        for (BookingDTO bookingDTO:bookingsDTOList) {
+            Booking booking=bookingRepository.findBookingByBookingId(bookingDTO.getBookingId());
+
+            Date pickupDate=sdf.parse(booking.getPickupDate());
+
+            if(bookingDTO.getBookingStatus().getBookingStatusType().equals(BookingStatusType.PENDING) && pickupDate.getTime()<currentDate.getTime()){
+                booking.setLate(true);
+                bookingRepository.save(booking);
+                bookingDTO.setLate(true);
+            }
+
+            List<BookingVehicle> vehicleList=bookingVehicleRepository.getAllByBooking(booking);
+            List<BookingAdditionalEquipment> equipmentList=bookingAdditionalEquipsRepository.getAllByBooking(booking);
+
+            bookingDTO.setVehicleList(vehicleList);
+            bookingDTO.setAdditionalEquipmentList(equipmentList);
+        }
+
+        return bookingsDTOList;
     }
 }
