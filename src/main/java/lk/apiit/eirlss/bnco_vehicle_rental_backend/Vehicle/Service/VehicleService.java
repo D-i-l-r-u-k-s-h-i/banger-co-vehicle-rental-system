@@ -2,6 +2,10 @@ package lk.apiit.eirlss.bnco_vehicle_rental_backend.Vehicle.Service;
 
 import lk.apiit.eirlss.bnco_vehicle_rental_backend.Auth.UserSession;
 import lk.apiit.eirlss.bnco_vehicle_rental_backend.Auth.entity.RoleName;
+import lk.apiit.eirlss.bnco_vehicle_rental_backend.Booking.Repository.BookingVehicleRepository;
+import lk.apiit.eirlss.bnco_vehicle_rental_backend.Booking.entity.BookingStatus;
+import lk.apiit.eirlss.bnco_vehicle_rental_backend.Booking.entity.BookingStatusType;
+import lk.apiit.eirlss.bnco_vehicle_rental_backend.Booking.entity.BookingVehicle;
 import lk.apiit.eirlss.bnco_vehicle_rental_backend.Util.Utils;
 import lk.apiit.eirlss.bnco_vehicle_rental_backend.Vehicle.DTO.VehicleDTO;
 import lk.apiit.eirlss.bnco_vehicle_rental_backend.Vehicle.Repository.VehicleRepository;
@@ -19,6 +23,9 @@ public class VehicleService {
     @Autowired
     VehicleRepository vehicleRepository;
 
+    @Autowired
+    BookingVehicleRepository bookingVehicleRepository;
+
     public String addVehicle(VehicleDTO vehicleDTO){
         UserSession userSession = (UserSession) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
@@ -26,6 +33,8 @@ public class VehicleService {
         if(userSession.getRole().getRoleName().equals(RoleName.ROLE_ADMIN)){
             ModelMapper modelMapper = new ModelMapper();
             Vehicle vehicle=modelMapper.map(vehicleDTO,Vehicle.class);
+
+            vehicle.setIndex((int) vehicle.getVehicleId());
 
             vehicleRepository.save(vehicle);
             ret="Vehicle added successfully";
@@ -46,7 +55,22 @@ public class VehicleService {
         String ret="";
 
         Vehicle vehicle=vehicleRepository.findVehicleByVehicleId(id);
-        vehicleRepository.delete(vehicle);
+        List<BookingVehicle> bookingPendingVehicleList=bookingVehicleRepository.getAllByVehicle_VehicleIdAndBooking_BookingStatus(id,new BookingStatus(BookingStatusType.PENDING));
+        List<BookingVehicle> bookingPickedUpVehicleList=bookingVehicleRepository.getAllByVehicle_VehicleIdAndBooking_BookingStatus(id,new BookingStatus(BookingStatusType.PICKED_UP));
+        List<BookingVehicle> bookingExtendedVehicleList=bookingVehicleRepository.getAllByVehicle_VehicleIdAndBooking_BookingStatus(id,new BookingStatus(BookingStatusType.EXTENDED));
+
+        List<BookingVehicle> bookingVehicleList=new ArrayList<>();
+        bookingVehicleList.addAll(bookingExtendedVehicleList);
+        bookingVehicleList.addAll(bookingPickedUpVehicleList);
+        bookingVehicleList.addAll(bookingPendingVehicleList);
+
+        if(bookingVehicleList.size()==0){
+            vehicleRepository.delete(vehicle);
+            ret="Vehicle deleted successfully.";
+        }
+        else{
+            ret="Cannot Delete, there is a pending booking";
+        }
 
         return ret;
     }
@@ -69,6 +93,9 @@ public class VehicleService {
         }
         if(vehicleDTO.getVehicleRentalPrice()!=0){
             vehicle.setVehicleRentalPrice(vehicleDTO.getVehicleRentalPrice());
+        }
+        if(vehicleDTO.getFuelType()!=null){
+            vehicle.setFuelType(vehicleDTO.getFuelType());
         }
 
         vehicleRepository.save(vehicle);

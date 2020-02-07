@@ -13,6 +13,8 @@ import lk.apiit.eirlss.bnco_vehicle_rental_backend.Booking.Repository.TimeSlotsR
 import lk.apiit.eirlss.bnco_vehicle_rental_backend.Booking.entity.*;
 import lk.apiit.eirlss.bnco_vehicle_rental_backend.Booking.DTO.BookingDTO;
 import lk.apiit.eirlss.bnco_vehicle_rental_backend.Util.Utils;
+import lk.apiit.eirlss.bnco_vehicle_rental_backend.Vehicle.DTO.VehicleDTO;
+import lk.apiit.eirlss.bnco_vehicle_rental_backend.Vehicle.entity.Vehicle;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -395,29 +397,31 @@ public class BookingService {
 
 
         SimpleDateFormat sdf2 = new SimpleDateFormat("yyyyMMdd");
-        Date currentDate = new Date();
+//        Date currentDate = new Date();
 
-        LocalDateTime localDateTime = currentDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
-        LocalDateTime tomorrowsDate=localDateTime.plusDays(1);
+        //get return date and to calculate the next day
+        LocalDateTime localDateTime = returnDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+        LocalDateTime nextDay=localDateTime.plusDays(1);
 
-        Date tomosDate=Date.from(tomorrowsDate.atZone(ZoneId.systemDefault()).toInstant());
+        Date nextDate=Date.from(nextDay.atZone(ZoneId.systemDefault()).toInstant());
         SimpleDateFormat sdf3 = new SimpleDateFormat("E, dd-M-yyyy");
-        String tomo=sdf3.format(tomosDate);
+        String next=sdf3.format(nextDate);
 
         Calendar cal = Calendar.getInstance();
+        cal.setTime(returnDate);
         cal.set(Calendar.HOUR_OF_DAY,16);
         cal.set(Calendar.MINUTE,0);
-        Date fourpm=cal.getTime();
+        Date fourpm=cal.getTime(); //4pm of the return date
 
 
         Boolean canExtend=false;
 
-        //if returndate is before 4.pm today
-        if(sdf2.format(returnDate).equals(sdf2.format(new Date())) && returnDate.getTime()<fourpm.getTime()){
-            List<Booking> bookingsForTomo=bookingRepository.findAllByPickupDateStartsWith(tomo);
+        //if returndate is before 4.pm today //// sdf2.format(returnDate).equals(sdf2.format(new Date())) &&
+        if(returnDate.getTime()<fourpm.getTime()){
+            List<Booking> bookingsForNextDay=bookingRepository.findAllByPickupDateStartsWith(next);
 
             //check whether any of the booked vehicles or equipments are booked for tomorrow
-            for (Booking b:bookingsForTomo) {
+            for (Booking b:bookingsForNextDay) {
                 List<BookingVehicle> bvList=bookingVehicleRepository.getAllByBooking(b);
                 List<BookingAdditionalEquipment> aebList=bookingAdditionalEquipsRepository.getAllByBooking(b);
 
@@ -437,6 +441,7 @@ public class BookingService {
         if(canExtend==true && customer.getCustomerStatus().equals("REPEAT")){
             booking.setReturnDate(sdf.format(fourpm));
             booking.setExtended(true);
+            bookingRepository.save(booking);
         }
 
         return canExtend;
@@ -556,5 +561,22 @@ public class BookingService {
         }
 
         return bookingsDTOList;
+    }
+
+    public List<VehicleDTO> pastVehiclesBookedByCustomer(){
+        UserSession userSession = (UserSession) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Customer customer= customerRepository.findByUserId(userSession.getId());
+
+        List<BookingVehicle> pastbookingVehicleList=bookingVehicleRepository.getAllByBooking_CustomerAndBooking_BookingStatus(customer,new BookingStatus(BookingStatusType.RETURNED));
+
+        List<Vehicle> vehicleList=new ArrayList<>();
+
+        for (BookingVehicle bv:pastbookingVehicleList) {
+            vehicleList.add(bv.getVehicle());
+        }
+
+        List<Vehicle> distinctVehicleList= vehicleList.stream().distinct().collect(toList());
+
+        return Utils.mapAll(distinctVehicleList,VehicleDTO.class);
     }
 }

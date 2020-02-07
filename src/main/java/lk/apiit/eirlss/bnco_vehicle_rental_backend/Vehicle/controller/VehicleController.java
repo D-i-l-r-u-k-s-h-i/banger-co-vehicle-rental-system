@@ -18,7 +18,8 @@ public class VehicleController {
     //only admin can perform this action
     @RequestMapping(value = "/save",method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> addVehicle(@RequestHeader(value = "Authorization") String token,@RequestBody VehicleDTO vehicleDTO){
-        return ResponseEntity.ok(vehicleService.addVehicle(vehicleDTO));
+        vehicleService.addVehicle(vehicleDTO);
+        return ResponseEntity.ok("");
     }
 
     @RequestMapping(value = "/",method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -34,7 +35,7 @@ public class VehicleController {
 
     @RequestMapping(value = "/delete/{id}",method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> deleteVehicle(@RequestHeader(value = "Authorization") String token, @PathVariable(name="id") long id){
-        vehicleService.deleteVehicle(id);
-        return ResponseEntity.ok("");
+
+        return ResponseEntity.ok(vehicleService.deleteVehicle(id));
     }
 }

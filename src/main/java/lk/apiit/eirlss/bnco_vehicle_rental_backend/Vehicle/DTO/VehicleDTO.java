@@ -27,7 +27,7 @@ public class VehicleDTO {
 
     private String fuelType;
 
-    private double vehicleRating;;
+    private double vehicleRating;
 
     private List<String> reviews;
 

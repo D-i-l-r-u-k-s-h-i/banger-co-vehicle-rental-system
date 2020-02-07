@@ -15,4 +15,6 @@ public interface BookingVehicleRepository extends JpaRepository<BookingVehicle,L
     List<BookingVehicle> getAllByBooking_CustomerAndBooking_BookingStatus(Customer customer,BookingStatus bookingStatus);
 
     BookingVehicle getByBooking_BookingIdAndVehicle_VehicleId(long bookingId,long vehicleId);
+
+    List<BookingVehicle> getAllByVehicle_VehicleIdAndBooking_BookingStatus(long vehicleId,BookingStatus status);
 }

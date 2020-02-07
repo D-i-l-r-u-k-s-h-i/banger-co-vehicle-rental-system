@@ -86,4 +86,9 @@ public class BookingController {
         bookingService.blacklistCustomer(booking_id);
         return ResponseEntity.ok("User Blacklisted Successfully");
     }
+
+    @RequestMapping(value = "/pastvehicles", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> vehiclesBookedByUserPast(@RequestHeader(value = "Authorization") String token) throws ParseException {
+        return ResponseEntity.ok(bookingService.pastVehiclesBookedByCustomer());
+    }
 }

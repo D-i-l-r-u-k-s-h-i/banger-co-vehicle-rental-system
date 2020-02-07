@@ -27,7 +27,7 @@ public class UserController {
     }
 
     @RequestMapping(value = "/search/{name}", method = RequestMethod.GET)
-    public ResponseEntity<?> blacklistUser(@RequestHeader(value = "Authorization") String token, @PathVariable(name = "name") String name){
+    public ResponseEntity<?> searchUser(@RequestHeader(value = "Authorization") String token, @PathVariable(name = "name") String name){
         return ResponseEntity.ok(customUserDetailService.searchUser(name));
     }
 }
