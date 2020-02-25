@@ -18,7 +18,9 @@ public class Vehicle {
 
     private String gearboxType;
 
-    private String imgLink;
+//    private String imgLink;
+
+    private byte[] imgFile;
 
     private String plateNumber;
 
@@ -31,7 +33,7 @@ public class Vehicle {
     private String fuelType; //fuel type and hybrid
 
     //for frontend
-    private int index;
+//    private int index;
 
     private double vehicleRating;
 

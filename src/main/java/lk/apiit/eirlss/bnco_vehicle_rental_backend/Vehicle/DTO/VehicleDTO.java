@@ -9,9 +9,11 @@ import java.util.List;
 @Setter
 public class VehicleDTO {
 
-    private long id;
+    private long vehicleId;
 
-    private String vehicleImgLink;
+//    private String vehicleImgLink;
+
+    private byte[] imgFile;
 
     private String vehicleName;
 

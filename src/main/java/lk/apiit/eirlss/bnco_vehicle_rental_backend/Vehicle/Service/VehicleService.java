@@ -16,7 +16,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Service
 public class VehicleService {
@@ -34,7 +38,7 @@ public class VehicleService {
             ModelMapper modelMapper = new ModelMapper();
             Vehicle vehicle=modelMapper.map(vehicleDTO,Vehicle.class);
 
-            vehicle.setIndex((int) vehicle.getVehicleId());
+//            vehicle.setIndex();
 
             vehicleRepository.save(vehicle);
             ret="Vehicle added successfully";
@@ -45,10 +49,22 @@ public class VehicleService {
     }
 
     public List<VehicleDTO> getAllVehicles(){
-        List<Vehicle> vehicles=vehicleRepository.findAllByOrderByIndex();
+        List<Vehicle> vehicles=vehicleRepository.findAll();
+
         List<VehicleDTO> vehicleList= Utils.mapAll(vehicles,VehicleDTO.class);
 
-        return(vehicleList);
+        HashMap<Integer, VehicleDTO> indexedVehicleMAP = vehicleList
+                .stream()
+                .collect(HashMap<Integer, VehicleDTO>::new,
+                        (map, streamValue) -> map.put(map.size(), streamValue),
+                        (map, map2) -> {
+                        });
+
+        indexedVehicleMAP.forEach((k, v) -> v.setIndex(k));
+        Collection<VehicleDTO> values = indexedVehicleMAP.values();
+        List<VehicleDTO> indexedVehicleList=new ArrayList<VehicleDTO>(values);
+
+        return indexedVehicleList;
     }
 
     public String deleteVehicle(long id){
@@ -77,7 +93,7 @@ public class VehicleService {
 
     public void updateVehicle(VehicleDTO vehicleDTO){
 
-        Vehicle vehicle=vehicleRepository.findVehicleByVehicleId(vehicleDTO.getId());
+        Vehicle vehicle=vehicleRepository.findVehicleByVehicleId(vehicleDTO.getVehicleId());
 
         if(vehicleDTO.getGearboxType()!=null){
             vehicle.setGearboxType(vehicleDTO.getGearboxType());
@@ -85,8 +101,8 @@ public class VehicleService {
         if(vehicleDTO.getVehicleName()!=null){
             vehicle.setVehicleName(vehicleDTO.getVehicleName());
         }
-        if(vehicleDTO.getVehicleImgLink()!=null){
-            vehicle.setImgLink(vehicleDTO.getVehicleImgLink());
+        if(vehicleDTO.getImgFile()!=null){
+            vehicle.setImgFile(vehicleDTO.getImgFile());
         }
         if(vehicleDTO.getVehicleType()!=null){
             vehicle.setVehicleType(vehicleDTO.getVehicleType());
