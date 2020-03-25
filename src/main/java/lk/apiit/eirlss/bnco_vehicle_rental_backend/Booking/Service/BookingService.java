@@ -579,4 +579,15 @@ public class BookingService {
 
         return Utils.mapAll(distinctVehicleList,VehicleDTO.class);
     }
+
+    public void addToBooking(long id){
+        //get timeslots using booking id
+        Booking booking=bookingRepository.findBookingByBookingId(id);
+        List<TimeSlots> timeSlotsList=timeSlotsRepository.getTimeSlotsByBooking(booking);
+        //foreach vehicle and equipment in the system get time slots
+
+        //compare
+        //if that doesnt contain timeslots related to booking show vehicle/equipment on the screen
+
+    }
 }
