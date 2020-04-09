@@ -75,11 +75,11 @@ public class CustomUserDetailService implements UserDetailsService {
                 newuser.setRole(new Role(2, RoleName.ROLE_CUSTOMER));
 
                 Customer newCust=new Customer();
-                newCust.setCustomerFName(customerDTO.getCustomerFirstName());
+                newCust.setCustomerFName(customerDTO.getCustomerFName());
                 newCust.setCustomerUserName(customerDTO.getCustomerUserName());
-                newCust.setCustomerLName(customerDTO.getCustomerLastName());
+                newCust.setCustomerLName(customerDTO.getCustomerLName());
                 newCust.setCustomerContactNo(customerDTO.getCustomerContactNo());
-                newCust.setEmergencyContactNo(customerDTO.getCustomerEmergencyContactNo());
+                newCust.setEmergencyContactNo(customerDTO.getEmergencyContactNo());
                 newCust.setCustomerEmail(customerDTO.getCustomerEmail());
 //                newCust.setRole(new Role(2, RoleName.ROLE_CUSTOMER));
 //                newCust.setUserId(newuser.getId());
@@ -159,5 +159,24 @@ public class CustomUserDetailService implements UserDetailsService {
         List<CustomerDTO> dtoList= Utils.mapAll(customerList,CustomerDTO.class);
 
         return dtoList;
+    }
+
+    public void updateCustomerDetails(CustomerDTO customerDTO){
+
+        Customer customer=customerRepository.findByCustomerId(customerDTO.getCustomerId());
+
+        if(customerDTO.getEmergencyContactNo()!=null){
+            customer.setEmergencyContactNo(customerDTO.getEmergencyContactNo());
+        }
+
+        if(customerDTO.getCustomerAddress()!=null){
+            customer.setCustomerAddress(customerDTO.getCustomerAddress());
+        }
+
+        if(customerDTO.getDocumentRecord()!=null){
+            customer.setDocumentRecord(customerDTO.getDocumentRecord());
+        }
+
+        customerRepository.save(customer);
     }
 }

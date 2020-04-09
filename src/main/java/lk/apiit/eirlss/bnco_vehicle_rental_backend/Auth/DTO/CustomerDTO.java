@@ -8,17 +8,19 @@ import lombok.Setter;
 public class CustomerDTO {
     private long customerId;
 
-    private String customerFirstName;
+    private String customerFName;
 
-    private String customerLastName;
+    private String customerLName;
 
     private String customerContactNo;
 
-    private String customerEmergencyContactNo;
+    private String emergencyContactNo;
 
-//    private String customerAddress;
+    private String customerAddress;
 
     private String customerStatus;
+
+    private String documentRecord;
 
     private String customerUserName;
 

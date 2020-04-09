@@ -1,6 +1,7 @@
 package lk.apiit.eirlss.bnco_vehicle_rental_backend.Auth.controller;
 
 import lk.apiit.eirlss.bnco_vehicle_rental_backend.Auth.DTO.AdminDTO;
+import lk.apiit.eirlss.bnco_vehicle_rental_backend.Auth.DTO.CustomerDTO;
 import lk.apiit.eirlss.bnco_vehicle_rental_backend.Auth.Service.CustomUserDetailService;
 import lk.apiit.eirlss.bnco_vehicle_rental_backend.Util.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,5 +30,12 @@ public class UserController {
     @RequestMapping(value = "/search/{name}", method = RequestMethod.GET)
     public ResponseEntity<?> searchUser(@RequestHeader(value = "Authorization") String token, @PathVariable(name = "name") String name){
         return ResponseEntity.ok(customUserDetailService.searchUser(name));
+    }
+
+    @RequestMapping(value = "/updatecustomer",method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> updateUser(@RequestHeader(value = "Authorization") String token,@RequestBody CustomerDTO customerDTO) throws Exception {
+        Utils.checkToken(token);
+        customUserDetailService.updateCustomerDetails(customerDTO);
+        return ResponseEntity.ok("Successfully Updated User Details");
     }
 }

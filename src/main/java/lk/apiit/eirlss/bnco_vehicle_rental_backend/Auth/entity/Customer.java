@@ -26,7 +26,9 @@ public class Customer {
 
     private String emergencyContactNo;
 
-//    private String customerAddress;
+    private String customerAddress;
+
+    private String documentRecord;
 
     private String customerStatus;
 
