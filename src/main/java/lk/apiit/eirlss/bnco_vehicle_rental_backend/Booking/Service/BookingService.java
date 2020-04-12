@@ -1,9 +1,13 @@
 package lk.apiit.eirlss.bnco_vehicle_rental_backend.Booking.Service;
 
+import com.opencsv.CSVReader;
+import com.opencsv.CSVReaderBuilder;
+import com.opencsv.exceptions.CsvValidationException;
 import lk.apiit.eirlss.bnco_vehicle_rental_backend.AdditionalEquipment.entity.AdditionalEquipment;
 import lk.apiit.eirlss.bnco_vehicle_rental_backend.Auth.Repository.CustomerRepository;
 import lk.apiit.eirlss.bnco_vehicle_rental_backend.Auth.UserSession;
 import lk.apiit.eirlss.bnco_vehicle_rental_backend.Auth.entity.Customer;
+import lk.apiit.eirlss.bnco_vehicle_rental_backend.Booking.DTO.BookingEligibilityDTO;
 import lk.apiit.eirlss.bnco_vehicle_rental_backend.Booking.DTO.MakeBookingDTO;
 import lk.apiit.eirlss.bnco_vehicle_rental_backend.Booking.DTO.TimeSlotsDTO;
 import lk.apiit.eirlss.bnco_vehicle_rental_backend.Booking.Repository.BookingAdditionalEquipsRepository;
@@ -15,12 +19,16 @@ import lk.apiit.eirlss.bnco_vehicle_rental_backend.Booking.DTO.BookingDTO;
 import lk.apiit.eirlss.bnco_vehicle_rental_backend.Util.Utils;
 import lk.apiit.eirlss.bnco_vehicle_rental_backend.Vehicle.DTO.VehicleDTO;
 import lk.apiit.eirlss.bnco_vehicle_rental_backend.Vehicle.entity.Vehicle;
+import org.apache.commons.io.FileUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.*;
@@ -589,5 +597,54 @@ public class BookingService {
         //compare
         //if that doesnt contain timeslots related to booking show vehicle/equipment on the screen
 
+    }
+
+    public String getIsInsuranceOffence(String lisenceNo){
+        return bookingRepository.getOffenses(lisenceNo);
+    }
+
+    public String getIsLisenceOffense(byte [] bytefile,String lisenceNo) throws IOException, CsvValidationException {
+
+        String ret="";
+
+        File newFile=new File("src/main/resources/templates/offences.csv");
+
+        FileUtils.writeByteArrayToFile(newFile, bytefile);
+        CSVReader reader = new CSVReaderBuilder(new FileReader("src/main/resources/templates/offences.csv")).withSkipLines(1).build();
+
+//        Map<String,String> csvfileData=new HashMap<>();
+
+        //Read CSV line by line and use the string array as you want
+        String[] nextLine;
+        while ((nextLine = reader.readNext()) != null) {
+            if (nextLine != null) {
+//                csvfileData.put(Arrays.asList(nextLine).get(0),Arrays.asList(nextLine).get(1));
+                if(Arrays.asList(nextLine).get(0).equals(lisenceNo)){
+                    ret=Arrays.asList(nextLine).get(1);
+                    break;
+                }
+            }
+        }
+
+        return ret;
+    }
+
+    public BookingEligibilityDTO checkEligibilityToBook(String lisenceNo, byte [] bytefile) throws IOException, CsvValidationException {
+
+        String lisenceOffence=getIsLisenceOffense(bytefile,lisenceNo);
+        String insuranceOffence=getIsInsuranceOffence(lisenceNo);
+
+        BookingEligibilityDTO dto=new BookingEligibilityDTO();
+        dto.setInsuranceOffenseStatus(insuranceOffence);
+        dto.setLisenceOffenseStatus(lisenceOffence);
+
+        if(lisenceOffence.equals("LOST") || lisenceOffence.equals("SUSPENDED")||lisenceOffence.equals("STOLEN") || insuranceOffence.equals("FRADULENT_CLAIM")){
+            dto.setBookingeligibility(false);
+        }
+        else{
+            dto.setBookingeligibility(true);
+        }
+
+        return dto;
     }
 }
