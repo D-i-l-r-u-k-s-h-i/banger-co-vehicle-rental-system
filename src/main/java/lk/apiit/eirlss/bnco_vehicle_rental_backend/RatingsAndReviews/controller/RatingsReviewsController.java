@@ -16,7 +16,7 @@ public class RatingsReviewsController {
     RatingsAndReviewsService ratingsAndReviewsService;
 
     @RequestMapping(value = "/save", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> addVehicle(@RequestHeader(value = "Authorization") String token, @RequestBody RatingReviewDTO ratingReviewDTO){
+    public ResponseEntity<?> addRatingOrReview(@RequestHeader(value = "Authorization") String token, @RequestBody RatingReviewDTO ratingReviewDTO){
         return ResponseEntity.ok(ratingsAndReviewsService.saveRatingOrReview(ratingReviewDTO));
     }
 
@@ -24,10 +24,5 @@ public class RatingsReviewsController {
     public ResponseEntity<?> getReviewsVehicle(@PathVariable(name = "id") long id, @RequestHeader(value = "Authorization") String token){
         return ResponseEntity.ok(ratingsAndReviewsService.getReviewsForVehicle(id));
     }
-
-//    @RequestMapping(value = "/ratings/{id}", method = RequestMethod.GET)
-//    public ResponseEntity<?> getVehicleRating(@PathVariable(name = "id") long id, @RequestHeader(value = "Authorization") String token){
-//        return ResponseEntity.ok(ratingsAndReviewsService.calculateOverallRating(id));
-//    }
 
 }

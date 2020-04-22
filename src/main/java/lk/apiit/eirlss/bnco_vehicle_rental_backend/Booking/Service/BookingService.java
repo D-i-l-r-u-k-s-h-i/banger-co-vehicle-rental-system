@@ -3,21 +3,20 @@ package lk.apiit.eirlss.bnco_vehicle_rental_backend.Booking.Service;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 import com.opencsv.exceptions.CsvValidationException;
+import lk.apiit.eirlss.bnco_vehicle_rental_backend.AdditionalEquipment.Repository.AdditionalEquipmentRepository;
 import lk.apiit.eirlss.bnco_vehicle_rental_backend.AdditionalEquipment.entity.AdditionalEquipment;
 import lk.apiit.eirlss.bnco_vehicle_rental_backend.Auth.Repository.CustomerRepository;
 import lk.apiit.eirlss.bnco_vehicle_rental_backend.Auth.UserSession;
 import lk.apiit.eirlss.bnco_vehicle_rental_backend.Auth.entity.Customer;
-import lk.apiit.eirlss.bnco_vehicle_rental_backend.Booking.DTO.BookingEligibilityDTO;
-import lk.apiit.eirlss.bnco_vehicle_rental_backend.Booking.DTO.MakeBookingDTO;
-import lk.apiit.eirlss.bnco_vehicle_rental_backend.Booking.DTO.TimeSlotsDTO;
+import lk.apiit.eirlss.bnco_vehicle_rental_backend.Booking.DTO.*;
 import lk.apiit.eirlss.bnco_vehicle_rental_backend.Booking.Repository.BookingAdditionalEquipsRepository;
 import lk.apiit.eirlss.bnco_vehicle_rental_backend.Booking.Repository.BookingRepository;
 import lk.apiit.eirlss.bnco_vehicle_rental_backend.Booking.Repository.BookingVehicleRepository;
 import lk.apiit.eirlss.bnco_vehicle_rental_backend.Booking.Repository.TimeSlotsRepository;
 import lk.apiit.eirlss.bnco_vehicle_rental_backend.Booking.entity.*;
-import lk.apiit.eirlss.bnco_vehicle_rental_backend.Booking.DTO.BookingDTO;
 import lk.apiit.eirlss.bnco_vehicle_rental_backend.Util.Utils;
 import lk.apiit.eirlss.bnco_vehicle_rental_backend.Vehicle.DTO.VehicleDTO;
+import lk.apiit.eirlss.bnco_vehicle_rental_backend.Vehicle.Repository.VehicleRepository;
 import lk.apiit.eirlss.bnco_vehicle_rental_backend.Vehicle.entity.Vehicle;
 import org.apache.commons.io.FileUtils;
 import org.modelmapper.ModelMapper;
@@ -32,8 +31,8 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.*;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
@@ -54,6 +53,12 @@ public class BookingService {
 
     @Autowired
     BookingAdditionalEquipsRepository bookingAdditionalEquipsRepository;
+
+    @Autowired
+    VehicleRepository vehicleRepository;
+
+    @Autowired
+    AdditionalEquipmentRepository additionalEquipmentRepository;
 
 
 
@@ -588,17 +593,6 @@ public class BookingService {
         return Utils.mapAll(distinctVehicleList,VehicleDTO.class);
     }
 
-    public void addToBooking(long id){
-        //get timeslots using booking id
-        Booking booking=bookingRepository.findBookingByBookingId(id);
-        List<TimeSlots> timeSlotsList=timeSlotsRepository.getTimeSlotsByBooking(booking);
-        //foreach vehicle and equipment in the system get time slots
-
-        //compare
-        //if that doesnt contain timeslots related to booking show vehicle/equipment on the screen
-
-    }
-
     public String getIsInsuranceOffence(String lisenceNo){
         return bookingRepository.getOffenses(lisenceNo);
     }
@@ -646,5 +640,91 @@ public class BookingService {
         }
 
         return dto;
+    }
+
+    public AvailableBookingItemsDTO getAvailableBookingItems(long bookingId){
+        Booking booking=bookingRepository.findBookingByBookingId(bookingId);
+        List<TimeSlots> timeSlotsList=timeSlotsRepository.getTimeSlotsByBooking(booking);
+
+        List<Long> bookingIds=new ArrayList<>();
+
+        for (TimeSlots timeSlot:timeSlotsList) {
+            String dt=timeSlot.getTimeSlot().toString().substring(0,18).replace('T',' ');
+            //get booking ids whith the same time slots
+            List<Long> bookingslots=timeSlotsRepository.getTimeSlotStartsWith(dt+"%");
+
+            bookingIds.addAll(bookingslots);
+
+        }
+
+        List<Long> distinctBookingIds=bookingIds.stream().distinct().collect(Collectors.toList());
+
+        List<Vehicle> vehiclesInBookings=new ArrayList<>();
+        List<AdditionalEquipment> equipmentInBookings=new ArrayList<>();
+
+        for (Long bid:distinctBookingIds) {
+            Booking bookingg=bookingRepository.findBookingByBookingId(bid);
+
+            List<BookingVehicle> vehicleListForThisBooking=bookingVehicleRepository.getAllByBooking(bookingg);
+
+            vehiclesInBookings.addAll(vehicleListForThisBooking.stream().map(BookingVehicle::getVehicle).collect(toList()));
+
+            List<BookingAdditionalEquipment> equipmentListForThisBooking=bookingAdditionalEquipsRepository.getAllByBooking(bookingg);
+
+            equipmentInBookings.addAll(equipmentListForThisBooking.stream().map(BookingAdditionalEquipment::getEquipment).collect(toList()));
+        }
+        List<Vehicle> allVehicles=vehicleRepository.findAll();
+        List<AdditionalEquipment> allAdditionalEquipment=additionalEquipmentRepository.findAll();
+
+        List<Vehicle> distinctVehiclesInBookings=vehiclesInBookings.stream().distinct().collect(Collectors.toList());
+        List<AdditionalEquipment> distinctEquipmentInBookings=equipmentInBookings.stream().distinct().collect(Collectors.toList());
+
+        List<Vehicle> availableVehicles=new ArrayList<>();
+        List<AdditionalEquipment> availableEquipment=new ArrayList<>();
+
+        for (Vehicle vehicle:allVehicles) {
+            if(!distinctVehiclesInBookings.contains(vehicle)){
+                availableVehicles.add(vehicle);
+            }
+        }
+
+        for (AdditionalEquipment equipment:allAdditionalEquipment) {
+            if(!distinctEquipmentInBookings.contains(equipment)){
+                availableEquipment.add(equipment);
+            }
+        }
+
+
+        AvailableBookingItemsDTO dto=new AvailableBookingItemsDTO();
+        dto.setVehicleList(availableVehicles);
+        dto.setAdditionalEquipmentList(availableEquipment);
+
+        return dto;
+    }
+
+    public void addItemForBooking(AvailableBookingItemsDTO dto){
+
+        Booking booking=bookingRepository.findBookingByBookingId(dto.getBookingId());
+
+        if(dto.getVehicleId()!=0){
+            Vehicle vehicle=vehicleRepository.findVehicleByVehicleId(dto.getVehicleId());
+
+            BookingVehicle bookingVehicle=new BookingVehicle();
+            bookingVehicle.setBooking(booking);
+            bookingVehicle.setVehicle(vehicle);
+
+            bookingVehicleRepository.save(bookingVehicle);
+        }
+
+        if(dto.getEquipmentId()!=0){
+            AdditionalEquipment additionalEquipment=additionalEquipmentRepository.findAdditionalEquipmentByEquipmentId(dto.getEquipmentId());
+
+            BookingAdditionalEquipment bookingAdditionalEquipment=new BookingAdditionalEquipment();
+            bookingAdditionalEquipment.setBooking(booking);
+            bookingAdditionalEquipment.setEquipment(additionalEquipment);
+
+            bookingAdditionalEquipsRepository.save(bookingAdditionalEquipment);
+        }
+
     }
 }
