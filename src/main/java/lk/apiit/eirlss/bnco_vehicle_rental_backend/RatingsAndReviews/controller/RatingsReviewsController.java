@@ -20,8 +20,8 @@ public class RatingsReviewsController {
         return ResponseEntity.ok(ratingsAndReviewsService.saveRatingOrReview(ratingReviewDTO));
     }
 
-    @RequestMapping(value = "/get/{id}", method = RequestMethod.GET)
-    public ResponseEntity<?> getReviewsVehicle(@PathVariable(name = "id") long id, @RequestHeader(value = "Authorization") String token){
+    @RequestMapping(value = "/getreviews/{id}", method = RequestMethod.GET)
+    public ResponseEntity<?> getReviewsVehicle(@PathVariable(name = "id") long id){
         return ResponseEntity.ok(ratingsAndReviewsService.getReviewsForVehicle(id));
     }
 

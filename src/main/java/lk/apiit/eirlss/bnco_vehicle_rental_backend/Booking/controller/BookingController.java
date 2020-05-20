@@ -42,8 +42,8 @@ public class BookingController {
     }
 
     @RequestMapping(value = "/timeslots/vehicle/{id}", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> timeslotsForVehicle(@RequestHeader(value = "Authorization") String token,@PathVariable(name = "id") long vehicle_id) throws Exception {
-        Utils.checkToken(token);
+    public ResponseEntity<?> timeslotsForVehicle(@PathVariable(name = "id") long vehicle_id) throws Exception {
+//        Utils.checkToken(token);
         return ResponseEntity.ok(bookingService.getReservedDatesforVehicle(vehicle_id));
     }
 
@@ -91,25 +91,29 @@ public class BookingController {
     }
 
     @RequestMapping(value = "/pickup/{booking_id}", method = RequestMethod.POST)
-    public ResponseEntity<?> pickupBooking(@RequestHeader(value = "Authorization") String token, @PathVariable(name = "booking_id") long booking_id) throws ParseException {
+    public ResponseEntity<?> pickupBooking(@RequestHeader(value = "Authorization") String token, @PathVariable(name = "booking_id") long booking_id) throws Exception {
+        Utils.checkToken(token);
         bookingService.onPickup(booking_id);
         return ResponseEntity.ok("Pickup confirmed");
     }
 
     @RequestMapping(value = "/return/{booking_id}", method = RequestMethod.POST)
-    public ResponseEntity<?> returnBooking(@RequestHeader(value = "Authorization") String token, @PathVariable(name = "booking_id") long booking_id) throws ParseException {
+    public ResponseEntity<?> returnBooking(@RequestHeader(value = "Authorization") String token, @PathVariable(name = "booking_id") long booking_id) throws Exception {
+        Utils.checkToken(token);
         bookingService.onReturn(booking_id);
         return ResponseEntity.ok("Return confirmed");
     }
 
     @RequestMapping(value = "/blacklist/{booking_id}", method = RequestMethod.POST)
-    public ResponseEntity<?> blacklistUser(@RequestHeader(value = "Authorization") String token, @PathVariable(name = "booking_id") long booking_id) throws ParseException {
+    public ResponseEntity<?> blacklistUser(@RequestHeader(value = "Authorization") String token, @PathVariable(name = "booking_id") long booking_id) throws Exception {
+        Utils.checkToken(token);
         bookingService.blacklistCustomer(booking_id);
         return ResponseEntity.ok("User Blacklisted Successfully");
     }
 
     @RequestMapping(value = "/pastvehicles", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> vehiclesBookedByUserPast(@RequestHeader(value = "Authorization") String token) throws ParseException {
+    public ResponseEntity<?> vehiclesBookedByUserPast(@RequestHeader(value = "Authorization") String token) throws Exception {
+        Utils.checkToken(token);
         return ResponseEntity.ok(bookingService.pastVehiclesBookedByCustomer());
     }
 
@@ -123,7 +127,8 @@ public class BookingController {
     }
 
     @RequestMapping(value = "/slotitems/{booking_id}", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> getBookingItemsForSlot(@RequestHeader(value = "Authorization") String token,@PathVariable(name = "booking_id") long booking_id) throws ParseException {
+    public ResponseEntity<?> getBookingItemsForSlot(@RequestHeader(value = "Authorization") String token,@PathVariable(name = "booking_id") long booking_id) throws Exception {
+        Utils.checkToken(token);
         return ResponseEntity.ok(bookingService.getAvailableBookingItems(booking_id));
     }
 

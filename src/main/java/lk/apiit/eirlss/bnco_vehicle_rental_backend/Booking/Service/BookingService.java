@@ -21,6 +21,8 @@ import lk.apiit.eirlss.bnco_vehicle_rental_backend.Vehicle.entity.Vehicle;
 import org.apache.commons.io.FileUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -60,7 +62,8 @@ public class BookingService {
     @Autowired
     AdditionalEquipmentRepository additionalEquipmentRepository;
 
-
+    @Autowired
+    private JavaMailSender javaMailSender;
 
     @Transactional
     public String saveBooking(MakeBookingDTO bookingDTO){
@@ -128,7 +131,7 @@ public class BookingService {
 
                             Booking booking=bookingRepository.findBookingByBookingId(addToThisBooking.getBookingId());
                             bookingAE.setBooking(booking);
-//                    bookingAE.setAdditionalEquipment();
+
                             //save additioonal equipment in booking
                             bookingAdditionalEquipsRepository.save(bookingAE);
 
@@ -172,8 +175,8 @@ public class BookingService {
                     if(bookingDTO.getEquipmentId()!=0){
                         ModelMapper mapper=new ModelMapper();
                         BookingAdditionalEquipment bookingAE=mapper.map(bookingDTO,BookingAdditionalEquipment.class);
-
-                        //save additioonal equipment in booking
+                        bookingAE.setBooking(booking);
+                        //save additional equipment in booking
                         bookingAdditionalEquipsRepository.save(bookingAE);
                     }
 
@@ -185,13 +188,17 @@ public class BookingService {
                         //save vehicle under this booking
                         bookingVehicleRepository.save(bookingVehicle);
                     }
+
                 }
+
                 //call method
                 if(getPastBookingsOfUser()==null){
                     customer.setCustomerStatus("NEW");
+                    customerRepository.save(customer);
                 }
                 else{
                     customer.setCustomerStatus("REPEAT");
+                    customerRepository.save(customer);
                 }
                 ret="Successful booking";
             }
@@ -606,13 +613,10 @@ public class BookingService {
         FileUtils.writeByteArrayToFile(newFile, bytefile);
         CSVReader reader = new CSVReaderBuilder(new FileReader("src/main/resources/templates/offences.csv")).withSkipLines(1).build();
 
-//        Map<String,String> csvfileData=new HashMap<>();
-
         //Read CSV line by line and use the string array as you want
         String[] nextLine;
         while ((nextLine = reader.readNext()) != null) {
             if (nextLine != null) {
-//                csvfileData.put(Arrays.asList(nextLine).get(0),Arrays.asList(nextLine).get(1));
                 if(Arrays.asList(nextLine).get(0).equals(lisenceNo)){
                     ret=Arrays.asList(nextLine).get(1);
                     break;
@@ -639,6 +643,17 @@ public class BookingService {
             dto.setBookingeligibility(true);
         }
 
+        if(lisenceOffence.equals("LOST") || lisenceOffence.equals("SUSPENDED")||lisenceOffence.equals("STOLEN")){
+            //send email to DMV
+            SimpleMailMessage msg = new SimpleMailMessage();
+            msg.setTo("dilrukshi.p.perera@gmail.com");
+
+            msg.setSubject("License Fraud alert");
+            msg.setText("Hi, \n This is to inform that a license fraud was detected under no. "+lisenceNo+" ("+lisenceOffence+") that was trying to book a vehicle through Banger and co registered with DMV under 24356B.");
+
+            javaMailSender.send(msg);
+        }
+
         return dto;
     }
 
@@ -649,7 +664,17 @@ public class BookingService {
         List<Long> bookingIds=new ArrayList<>();
 
         for (TimeSlots timeSlot:timeSlotsList) {
-            String dt=timeSlot.getTimeSlot().toString().substring(0,18).replace('T',' ');
+            String dt="";
+            if(timeSlot.getTimeSlot().toString().length()>10 && (!timeSlot.getTimeSlot().toString().substring(0,10).equals('T'))){
+                dt=timeSlot.getTimeSlot().toString().substring(0,10).replace('T',' ');
+            }
+            else if(timeSlot.getTimeSlot().toString().length()>18 && (!timeSlot.getTimeSlot().toString().substring(0,18).equals('T'))){
+                dt=timeSlot.getTimeSlot().toString().substring(0,18).replace('T',' ');
+            }
+            else {
+                dt=timeSlot.getTimeSlot().toString();
+            }
+
             //get booking ids whith the same time slots
             List<Long> bookingslots=timeSlotsRepository.getTimeSlotStartsWith(dt+"%");
 

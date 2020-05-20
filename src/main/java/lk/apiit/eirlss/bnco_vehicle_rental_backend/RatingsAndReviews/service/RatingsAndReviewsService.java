@@ -77,6 +77,7 @@ public class RatingsAndReviewsService {
             ratingsAndReviews.setTimestamp(sdf.format(date));
             ratingsAndReviews.setCustomer(customer);
             ratingsAndReviews.setVehicle(vehicle);
+            ratingsAndReviews.setCustomerReview(dto.getCustomerReview());
 
             ratingsAndReviewsRepository.save(ratingsAndReviews);
             ret="successful saving of rating or review";
