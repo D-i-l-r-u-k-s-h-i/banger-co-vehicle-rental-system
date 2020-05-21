@@ -7,6 +7,7 @@ import lk.apiit.eirlss.bnco_vehicle_rental_backend.Booking.entity.BookingStatus;
 import lk.apiit.eirlss.bnco_vehicle_rental_backend.Booking.entity.BookingStatusType;
 import lk.apiit.eirlss.bnco_vehicle_rental_backend.Booking.entity.BookingVehicle;
 import lk.apiit.eirlss.bnco_vehicle_rental_backend.Util.Utils;
+import lk.apiit.eirlss.bnco_vehicle_rental_backend.Vehicle.DTO.DeleteStatusMessageDTO;
 import lk.apiit.eirlss.bnco_vehicle_rental_backend.Vehicle.DTO.VehicleDTO;
 import lk.apiit.eirlss.bnco_vehicle_rental_backend.Vehicle.Repository.VehicleRepository;
 import lk.apiit.eirlss.bnco_vehicle_rental_backend.Vehicle.entity.Vehicle;
@@ -67,8 +68,8 @@ public class VehicleService {
         return indexedVehicleList;
     }
 
-    public String deleteVehicle(long id){
-        String ret="";
+    public DeleteStatusMessageDTO deleteVehicle(long id){
+        DeleteStatusMessageDTO messageDTO=new DeleteStatusMessageDTO();
 
         Vehicle vehicle=vehicleRepository.findVehicleByVehicleId(id);
         List<BookingVehicle> bookingPendingVehicleList=bookingVehicleRepository.getAllByVehicle_VehicleIdAndBooking_BookingStatus(id,new BookingStatus(BookingStatusType.PENDING));
@@ -82,13 +83,15 @@ public class VehicleService {
 
         if(bookingVehicleList.size()==0){
             vehicleRepository.delete(vehicle);
-            ret="Vehicle deleted successfully.";
+            messageDTO.setMessage("Vehicle deleted successfully.");
+            messageDTO.setStatus("DELETE");
         }
         else{
-            ret="Cannot Delete, there is a pending booking";
+            messageDTO.setMessage("Cannot Delete, there is a pending booking");
+            messageDTO.setStatus("CANNOT_DELETE");
         }
 
-        return ret;
+        return messageDTO;
     }
 
     public void updateVehicle(VehicleDTO vehicleDTO){

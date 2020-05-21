@@ -38,7 +38,9 @@ public class BookingDTO {
 
     private boolean isExtended;
 
-    private boolean isLate;
+    private boolean isLatePickup;
+
+    private boolean isLateReturn;
 
     private double total;
 

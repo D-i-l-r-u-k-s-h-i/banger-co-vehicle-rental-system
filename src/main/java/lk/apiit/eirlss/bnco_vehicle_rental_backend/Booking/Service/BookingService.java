@@ -554,23 +554,23 @@ public class BookingService {
 
         List<Booking> allBookingsForToday=bookingRepository.findAllByPickupDateStartsWithOrReturnDateStartsWith(today,today);
 
-        List<BookingDTO> bookingsDTOList=Utils.mapAll(allBookingsForToday,BookingDTO.class);
-        bookingsDTOList.forEach(bookingdto->{
+        List<BookingDTO> bookingsTodayDTOList=Utils.mapAll(allBookingsForToday,BookingDTO.class);
+        bookingsTodayDTOList.forEach(bookingdto->{
             double total=calculateTotal(bookingdto.getBookingId());
             bookingdto.setTotal(total);
         });
 
         SimpleDateFormat sdf = new SimpleDateFormat("E, dd-M-yyyy hh:mm:ss a");
 
-        for (BookingDTO bookingDTO:bookingsDTOList) {
+        for (BookingDTO bookingDTO:bookingsTodayDTOList) {
             Booking booking=bookingRepository.findBookingByBookingId(bookingDTO.getBookingId());
 
             Date pickupDate=sdf.parse(booking.getPickupDate());
 
             if(bookingDTO.getBookingStatus().getBookingStatusType().equals(BookingStatusType.PENDING) && pickupDate.getTime()<currentDate.getTime()){
-                booking.setLate(true);
+                booking.setLatePickup(true);
                 bookingRepository.save(booking);
-                bookingDTO.setLate(true);
+                bookingDTO.setLatePickup(true);
             }
 
             List<BookingVehicle> vehicleList=bookingVehicleRepository.getAllByBooking(booking);
@@ -579,6 +579,49 @@ public class BookingService {
             bookingDTO.setVehicleList(vehicleList);
             bookingDTO.setAdditionalEquipmentList(equipmentList);
         }
+
+        //also sending late returns and late pickups that doesnt include the today's bookings
+
+        List<Booking> lateReturns=bookingRepository.getLateReturns();
+        List<BookingDTO> lateReturnsDTOList=Utils.mapAll(lateReturns,BookingDTO.class);
+
+        for(BookingDTO bookingDTO:lateReturnsDTOList){
+            Booking booking=bookingRepository.findBookingByBookingId(bookingDTO.getBookingId());
+
+            booking.setLateReturn(true);
+            bookingRepository.save(booking);
+
+            List<BookingVehicle> vehicleList=bookingVehicleRepository.getAllByBooking(booking);
+            List<BookingAdditionalEquipment> equipmentList=bookingAdditionalEquipsRepository.getAllByBooking(booking);
+
+            bookingDTO.setVehicleList(vehicleList);
+            bookingDTO.setAdditionalEquipmentList(equipmentList);
+
+            bookingDTO.setLateReturn(true);
+        }
+
+        List<Booking> latrPickups=bookingRepository.getLatePickups();
+        List<BookingDTO> latePickupsDTOList=Utils.mapAll(latrPickups,BookingDTO.class);
+
+        for(BookingDTO bookingDTO:latePickupsDTOList){
+            Booking booking=bookingRepository.findBookingByBookingId(bookingDTO.getBookingId());
+
+            booking.setLatePickup(true);
+            bookingRepository.save(booking);
+
+            List<BookingVehicle> vehicleList=bookingVehicleRepository.getAllByBooking(booking);
+            List<BookingAdditionalEquipment> equipmentList=bookingAdditionalEquipsRepository.getAllByBooking(booking);
+
+            bookingDTO.setVehicleList(vehicleList);
+            bookingDTO.setAdditionalEquipmentList(equipmentList);
+
+            bookingDTO.setLatePickup(true);
+        }
+
+        List<BookingDTO> bookingsDTOList= new ArrayList<>();
+        bookingsDTOList.addAll(bookingsTodayDTOList);
+        bookingsDTOList.addAll(lateReturnsDTOList);
+        bookingsDTOList.addAll(latePickupsDTOList);
 
         return bookingsDTOList;
     }
