@@ -26,7 +26,7 @@ public class Vehicle {
 
     private double vehicleRentalPrice;
 
-    private String availabilityStatus;
+    private boolean availabilityStatus;
 
     private String vehicleType;
 

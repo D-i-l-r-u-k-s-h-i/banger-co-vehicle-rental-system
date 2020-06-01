@@ -68,6 +68,26 @@ public class VehicleService {
         return indexedVehicleList;
     }
 
+    public List<VehicleDTO> getVehiclesHomePage(){
+        //gets only the available vehicles
+        List<Vehicle> vehicles=vehicleRepository.findAllByAvailabilityStatus(true);
+
+        List<VehicleDTO> vehicleList= Utils.mapAll(vehicles,VehicleDTO.class);
+
+        HashMap<Integer, VehicleDTO> indexedVehicleMAP = vehicleList
+                .stream()
+                .collect(HashMap<Integer, VehicleDTO>::new,
+                        (map, streamValue) -> map.put(map.size(), streamValue),
+                        (map, map2) -> {
+                        });
+
+        indexedVehicleMAP.forEach((k, v) -> v.setIndex(k));
+        Collection<VehicleDTO> values = indexedVehicleMAP.values();
+        List<VehicleDTO> indexedVehicleList=new ArrayList<VehicleDTO>(values);
+
+        return indexedVehicleList;
+    }
+
     public DeleteStatusMessageDTO deleteVehicle(long id){
         DeleteStatusMessageDTO messageDTO=new DeleteStatusMessageDTO();
 
@@ -116,6 +136,14 @@ public class VehicleService {
         if(vehicleDTO.getFuelType()!=null){
             vehicle.setFuelType(vehicleDTO.getFuelType());
         }
+
+        if(vehicleDTO.getAvailabilityStatus()!=null && vehicleDTO.getAvailabilityStatus()){
+            vehicle.setAvailabilityStatus(true);
+        }
+        else if(vehicleDTO.getAvailabilityStatus()!=null && vehicleDTO.getAvailabilityStatus()==false){
+            vehicle.setAvailabilityStatus(false);
+        }
+
 
         vehicleRepository.save(vehicle);
     }

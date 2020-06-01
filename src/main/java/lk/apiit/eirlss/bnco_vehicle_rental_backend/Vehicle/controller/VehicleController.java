@@ -38,7 +38,7 @@ public class VehicleController {
         vehicleDTO.setGearboxType(gearboxType);
         vehicleDTO.setVehicleType(vehicleType);
         vehicleDTO.setImgFile(imgFile.getBytes());
-        vehicleDTO.setAvailabilityStatus("Available");
+        vehicleDTO.setAvailabilityStatus(true);
 
         vehicleService.addVehicle(vehicleDTO);
 
@@ -47,13 +47,18 @@ public class VehicleController {
 
     @RequestMapping(value = "/",method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getVehicles(){ //@RequestHeader(value = "Authorization") String token
+        return ResponseEntity.ok(vehicleService.getVehiclesHomePage());
+    }
+
+    @RequestMapping(value = "/admin",method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getVehiclesforAdmin(){ //@RequestHeader(value = "Authorization") String token
         return ResponseEntity.ok(vehicleService.getAllVehicles());
     }
 
     @RequestMapping(value = "/update",method = RequestMethod.POST, consumes = {MediaType.MULTIPART_FORM_DATA_VALUE,MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<?> updateVehicle(@RequestHeader(value = "Authorization") String token,@RequestParam(value = "imgFile",required = false) MultipartFile imgFile,@RequestParam(value="vehicleId") Long vehicleId, @RequestParam(value="vehicleType",required = false) String vehicleType,
                                            @RequestParam(value ="vehicleName",required = false)String vehicleName, @RequestParam(value ="vehicleRentalPrice",required = false) Double vehicleRentalPrice, @RequestParam(value ="fuelType",required = false)String fuelType,
-                                           @RequestParam(value ="gearboxType",required = false) String gearboxType) throws IOException {
+                                           @RequestParam(value ="gearboxType",required = false) String gearboxType,  @RequestParam(value ="availabilityStatus",required = false) Boolean availabilityStatus) throws IOException {
 
         VehicleDTO vehicleDTO=new VehicleDTO();
         vehicleDTO.setVehicleId(vehicleId);
@@ -63,6 +68,8 @@ public class VehicleController {
         vehicleDTO.setGearboxType(gearboxType);
         vehicleDTO.setVehicleType(vehicleType);
         vehicleDTO.setImgFile(imgFile== null ?null:imgFile.getBytes());
+        if(availabilityStatus!=null)
+            vehicleDTO.setAvailabilityStatus(availabilityStatus);
 
         vehicleService.updateVehicle(vehicleDTO);
 

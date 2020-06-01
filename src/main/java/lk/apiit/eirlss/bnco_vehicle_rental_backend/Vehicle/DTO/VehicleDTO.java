@@ -23,7 +23,7 @@ public class VehicleDTO {
 
     private double vehicleRentalPrice;
 
-    private String availabilityStatus;
+    private Boolean availabilityStatus;
 
     private String vehicleType;
 
