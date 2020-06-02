@@ -88,20 +88,20 @@ public class VehicleController {
 
         List<RentalPricesDTO> rentlPrceList=new ArrayList<>();
 
-        Document document= Jsoup.connect("https://www.amerirentacar.com/self-drive-rates-in-sri-lanka/").get();
+        Document document= Jsoup.connect("https://www.malkey.lk/rates/self-drive-rates.html").get();
 
         Elements tds = document.select("tr");
 
         for (Element el:tds) {
 
-            String vehicle=el.getElementsByClass("column-1").text();
-            String prices=el.getElementsByClass("column-3").text();
+            String vehicle=el.getElementsByClass("text-left percent-40").text();
+            String prices=el.getElementsByClass("text-center percent-22").eq(1).text();
 
             rentlPrceList.add(new RentalPricesDTO(vehicle,prices));
         }
 
         rentlPrceList.remove(0);
 
-        return ResponseEntity.ok(rentlPrceList);
+        return ResponseEntity.ok(vehicleService.compareRentalRates(rentlPrceList));
     }
 }

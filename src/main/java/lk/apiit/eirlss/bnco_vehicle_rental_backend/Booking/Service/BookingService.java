@@ -584,6 +584,10 @@ public class BookingService {
 
         List<Booking> lateReturns=bookingRepository.getLateReturns();
         List<BookingDTO> lateReturnsDTOList=Utils.mapAll(lateReturns,BookingDTO.class);
+        lateReturnsDTOList.forEach(bookingdto->{
+            double total=calculateTotal(bookingdto.getBookingId());
+            bookingdto.setTotal(total);
+        });
 
         for(BookingDTO bookingDTO:lateReturnsDTOList){
             Booking booking=bookingRepository.findBookingByBookingId(bookingDTO.getBookingId());
@@ -602,6 +606,10 @@ public class BookingService {
 
         List<Booking> latrPickups=bookingRepository.getLatePickups();
         List<BookingDTO> latePickupsDTOList=Utils.mapAll(latrPickups,BookingDTO.class);
+        latePickupsDTOList.forEach(bookingdto->{
+            double total=calculateTotal(bookingdto.getBookingId());
+            bookingdto.setTotal(total);
+        });
 
         for(BookingDTO bookingDTO:latePickupsDTOList){
             Booking booking=bookingRepository.findBookingByBookingId(bookingDTO.getBookingId());

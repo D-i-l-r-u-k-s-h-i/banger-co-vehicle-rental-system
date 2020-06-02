@@ -23,9 +23,9 @@ public interface BookingRepository extends JpaRepository<Booking,Long> {
     @Query(value="SELECT cc.offense_status AS status FROM insurance_offenses AS cc WHERE cc.lisence_no=?1",nativeQuery = true)
     String getOffenses(String lisence);
 
-    @Query(value="SELECT * FROM booking AS cc WHERE cc.booking_status_type='PICKED_UP' AND TO_DATE(TO_CHAR(now(),'DD-M-YYYY HH:MI:SS'),'DD-M-YYYY HH:MI:SS')> TO_DATE(SUBSTRING (cc.return_date FROM 6 FOR 23),'DD-M-YYYY HH:MI:SS')",nativeQuery = true)
+    @Query(value="SELECT * FROM booking AS cc WHERE cc.booking_status_type='PICKED_UP' AND TO_DATE(TO_CHAR(now(),'DD-M-YYYY HH:MI:SS'),'DD-M-YYYY HH:MI:SS')< TO_DATE(SUBSTRING (cc.return_date FROM 6 FOR 23),'DD-M-YYYY HH:MI:SS')",nativeQuery = true)
     List<Booking> getLateReturns();
 
-    @Query(value="SELECT * FROM booking AS cc WHERE cc.booking_status_type='PENDING' AND TO_DATE(TO_CHAR(now(),'DD-M-YYYY'),'DD-M-YYYY')> TO_DATE(SUBSTRING (cc.pickup_date FROM 6 FOR 14),'DD-M-YYYY')",nativeQuery = true)
+    @Query(value="SELECT * FROM booking AS cc WHERE cc.booking_status_type='PENDING' AND TO_DATE(TO_CHAR(now(),'DD-M-YYYY'),'DD-M-YYYY')< TO_DATE(SUBSTRING (cc.pickup_date FROM 6 FOR 14),'DD-M-YYYY')",nativeQuery = true)
     List<Booking> getLatePickups();
 }

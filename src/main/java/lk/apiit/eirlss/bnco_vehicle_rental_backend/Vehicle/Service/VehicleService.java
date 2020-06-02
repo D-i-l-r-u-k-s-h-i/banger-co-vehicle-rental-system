@@ -8,6 +8,7 @@ import lk.apiit.eirlss.bnco_vehicle_rental_backend.Booking.entity.BookingStatusT
 import lk.apiit.eirlss.bnco_vehicle_rental_backend.Booking.entity.BookingVehicle;
 import lk.apiit.eirlss.bnco_vehicle_rental_backend.Util.Utils;
 import lk.apiit.eirlss.bnco_vehicle_rental_backend.Vehicle.DTO.DeleteStatusMessageDTO;
+import lk.apiit.eirlss.bnco_vehicle_rental_backend.Vehicle.DTO.RentalPricesDTO;
 import lk.apiit.eirlss.bnco_vehicle_rental_backend.Vehicle.DTO.VehicleDTO;
 import lk.apiit.eirlss.bnco_vehicle_rental_backend.Vehicle.Repository.VehicleRepository;
 import lk.apiit.eirlss.bnco_vehicle_rental_backend.Vehicle.entity.Vehicle;
@@ -16,10 +17,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
+import java.text.NumberFormat;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -146,5 +145,21 @@ public class VehicleService {
 
 
         vehicleRepository.save(vehicle);
+    }
+
+    public List<RentalPricesDTO> compareRentalRates(List<RentalPricesDTO> rentalRatesDTO){
+        List<Vehicle> vehicles=vehicleRepository.findAll();
+
+        for (RentalPricesDTO dto:rentalRatesDTO) {
+            for (Vehicle vehicle: vehicles) {
+                if(dto.getVehicleName().contains(vehicle.getVehicleName())){
+                    double price=vehicle.getVehicleRentalPrice()*168;
+                    NumberFormat nf = NumberFormat.getInstance(new Locale("en", "US"));
+                    dto.setOurPrice(nf.format(price));
+                }
+            }
+        }
+
+        return rentalRatesDTO;
     }
 }

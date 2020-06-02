@@ -15,4 +15,10 @@ public class RentalPricesDTO {
 
     private String rentalPrice;
 
+    private String ourPrice;
+
+    public RentalPricesDTO(String vehicleName, String rentalPrice) {
+        this.vehicleName = vehicleName;
+        this.rentalPrice = rentalPrice;
+    }
 }
