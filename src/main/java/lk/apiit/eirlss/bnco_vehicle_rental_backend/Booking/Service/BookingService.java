@@ -116,7 +116,7 @@ public class BookingService {
                 if(currentBookings!=null){
                     // if return date matches, get that booking and add the vehicle/additional equipment here}
                     for (BookingDTO booking:currentBookings) {
-                        if(booking.getReturnDate().equals(endDate)){
+                        if(booking.getReturnDate().equals(endDate) && booking.getLisenceNo().equals(bookingDTO.getLisenceNo())){
                             isMatch=true;
                             addToThisBooking=booking;
                             //break out of loop

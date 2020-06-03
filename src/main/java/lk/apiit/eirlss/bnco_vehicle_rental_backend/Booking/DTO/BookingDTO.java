@@ -44,6 +44,8 @@ public class BookingDTO {
 
     private double total;
 
+    private String lisenceNo;
+
 //    private long vehicleId;
 
 //    private long equipmentId;

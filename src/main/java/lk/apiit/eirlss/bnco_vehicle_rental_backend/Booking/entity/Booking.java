@@ -36,6 +36,8 @@ public class Booking {
 
     private boolean isLateReturn;
 
+    private String lisenceNo;
+
     @ManyToOne
     @JoinColumn(name = "booking_status_type")
     private BookingStatus bookingStatus;

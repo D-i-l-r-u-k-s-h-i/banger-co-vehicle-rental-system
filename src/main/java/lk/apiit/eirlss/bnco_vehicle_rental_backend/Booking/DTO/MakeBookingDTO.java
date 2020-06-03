@@ -22,4 +22,6 @@ public class MakeBookingDTO {
 
     private long equipmentId;
 
+    private String lisenceNo;
+
 }
